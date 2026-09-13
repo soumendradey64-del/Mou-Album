@@ -75,3 +75,17 @@ This log records every significant architectural, design, and interaction decisi
 * **Rationale:** Blending these stages permanently into `index.html` eliminates experimental fragmentation, makes photo/text editing effortless via explicit HTML comments, and maintains flawless gesture continuity across all three stages.
 * **Consequences:** `experiment.html` is safely retired. `index.html` is the authoritative production entry point. All 3D kinematics and swipe gestures operate continuously.
 
+---
+
+### ADR-007: Instant Return-to-Cover Control & Pill Action from Deep Album View (Option B)
+* **Date:** 2026-09-14
+* **Decision:** Provide an instant return mechanism straight back to the landing page (Stage 0) from any photo inside Stage 3, combining:
+  1. An Apple Liquid Glass return button (`#returnCoverBtn`) in the top safe area (`<button class="apple-return-btn">`).
+  2. Direct tap action on the bottom progress pill (`#glassPill`).
+  3. Clean state resets: resetting photo zoom (`resetZoomImmediate()`), photo index (`currentState = 0`), progress, and smooth re-entry into Stage 0.
+  4. Desktop keyboard shortcuts (`Escape` / `Home` to return to cover, arrow keys for navigation).
+* **Context:** When browsing deep into the album (e.g. Photo 15 of 25), backward swiping sequentially stepped back one photo at a time (Photo 15 -> 14 -> ... -> 1) before reaching the landing page.
+* **Rationale:** While fine-art photo-by-photo paging is ideal during forward browsing, users need a friction-free way to return directly to the cover without repetitively swiping through 15+ photos.
+* **Consequences:** Users can explore freely deep in the album and return instantly with a single tap or keystroke. Sequential photo-by-photo backward swiping is preserved as normal touch gesture behavior.
+
+
