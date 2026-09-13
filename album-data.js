@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * MOBILE SPATIAL PHOTO ALBUM — ALBUM DATA MODEL (album-data.js)
- * 24 Photos: 1.jpeg to 24.jpeg
+ * 25 Photos: 1 to 25
  * ============================================================================
  */
 
@@ -10,7 +10,7 @@ export const albumData = [
   { id: 2, url: './photos/2.jpeg' },
   { id: 3, url: './photos/3.jpeg' },
   { id: 4, url: './photos/4.jpeg' },
-  { id: 5, url: './photos/5.jpeg' },
+  { id: 5, url: './photos/5.png' },
   { id: 6, url: './photos/6.jpeg' },
   { id: 7, url: './photos/7.jpeg' },
   { id: 8, url: './photos/8.jpeg' },

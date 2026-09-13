@@ -21,10 +21,10 @@
         :root {
             --bg-dark: #070709;
             --gold-accent: #d4af37;
-            --glass-bg: rgba(18, 18, 22, 0.65);
-            --glass-border: 0.5px solid rgba(255, 255, 255, 0.18);
+            --glass-bg: rgba(22, 22, 26, 0.72);
+            --glass-border: 0.5px solid rgba(255, 255, 255, 0.28);
             --font-serif: 'Newsreader', Georgia, serif;
-            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
         }
 
         * {
@@ -96,7 +96,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: calc(18px + env(safe-area-inset-top, 0px)) 20px calc(18px + env(safe-area-inset-bottom, 0px));
+            padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 30%, #151419 0%, #08080a 100%);
             transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
@@ -122,10 +122,13 @@
         /* EDITABLE HEADING */
         .landing-title {
             font-family: var(--font-serif);
-            font-size: 28px;
-            font-weight: 500;
-            line-height: 1.2;
-            letter-spacing: 0.04em;
+            font-optical-sizing: auto;
+            text-rendering: optimizeLegibility;
+            font-size: clamp(20px, 5.8vw, 26px);
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.25;
+            letter-spacing: 0.02em;
             color: #FDFCF9;
         }
 
@@ -134,23 +137,25 @@
             position: relative;
             flex: 1;
             width: 100%;
-            max-width: min(360px, 92vw);
-            max-height: 60vh;
+            max-width: min(340px, 88vw);
+            max-height: 56vh;
+            max-height: 56dvh;
             margin: 10px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 22px;
+            border-radius: 18px;
             overflow: hidden;
             box-shadow: 0 28px 75px -10px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .stage-photo-frame img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
-            border-radius: 22px;
+            border-radius: 18px;
         }
 
         .stage-footer {
@@ -166,23 +171,23 @@
             display: inline-flex;
             align-items: center;
             gap: 9px;
-            padding: 10px 22px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            padding: 9px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: var(--glass-border);
+            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.45), inset 0 0.5px 0.5px rgba(255, 255, 255, 0.90), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
             border-radius: 999px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 500;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.9);
-            animation: cuePulse 2.4s ease-in-out infinite;
         }
 
         .scroll-down-cue svg {
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             stroke: currentColor;
             stroke-width: 2;
             fill: none;
@@ -212,7 +217,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+            padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 35%, #181520 0%, #060608 100%);
             transform: translateY(100%);
@@ -232,7 +237,9 @@
 
         .second-heading {
             font-family: var(--font-serif);
-            font-size: 24px;
+            font-optical-sizing: auto;
+            text-rendering: optimizeLegibility;
+            font-size: clamp(20px, 5.2vw, 24px);
             font-weight: 400;
             font-style: italic;
             color: #FDFCF9;
@@ -254,7 +261,7 @@
             inset: -30px;
             background-size: cover;
             background-position: center;
-            filter: blur(54px) brightness(0.48) saturate(1.5);
+            filter: blur(52px) brightness(0.36) saturate(1.05);
             transform: scale(1.15);
             opacity: 0;
             transition: opacity 0.18s linear;
@@ -317,7 +324,8 @@
             align-items: center;
             justify-content: center;
             max-width: min(370px, 92vw);
-            max-height: min(640px, 78vh);
+            max-height: min(640px, 76vh);
+            max-height: min(640px, 76dvh);
             border-radius: 16px 24px 24px 16px;
             overflow: visible;
             box-shadow:
@@ -333,7 +341,8 @@
 
         .photo-container img {
             max-width: min(370px, 92vw);
-            max-height: min(640px, 78vh);
+            max-height: min(640px, 76vh);
+            max-height: min(640px, 76dvh);
             width: auto;
             height: auto;
             object-fit: contain;
@@ -366,60 +375,40 @@
             transition: opacity 0.05s ease;
         }
 
-        .glass-sheen {
-            position: absolute;
-            inset: 0;
-            border-radius: 16px 24px 24px 16px;
-            background: linear-gradient(115deg,
-                    transparent 15%,
-                    rgba(255, 255, 255, 0.04) 35%,
-                    rgba(255, 255, 255, 0.24) 50%,
-                    rgba(255, 255, 255, 0.06) 65%,
-                    transparent 85%);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 8;
-            mix-blend-mode: overlay;
-            transition: opacity 0.06s ease;
-        }
-
         .photo-container.is-zoomed {
             z-index: 100;
             box-shadow: 0 35px 90px rgba(0, 0, 0, 0.95);
         }
 
         .photo-container.is-zoomed .spine-crease,
-        .photo-container.is-zoomed .page-shading,
-        .photo-container.is-zoomed .glass-sheen {
+        .photo-container.is-zoomed .page-shading {
             opacity: 0 !important;
         }
 
-        /* Apple Glass Navigation Pill (Tap to Return to Landing) */
+        /* Apple Glass Navigation Pill (Curatorial Indicator) */
         .apple-glass-pill {
             position: absolute;
             bottom: calc(24px + env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%);
-            height: 38px;
+            height: 36px;
             background: var(--glass-bg);
             backdrop-filter: blur(24px) saturate(180%);
             -webkit-backdrop-filter: blur(24px) saturate(180%);
             border: var(--glass-border);
-            box-shadow: inset 0 0.5px 0.5px rgba(255, 255, 255, 0.35), 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.45), inset 0 0.5px 0.5px rgba(255, 255, 255, 0.90), 0 10px 32px -4px rgba(0, 0, 0, 0.75);
             border-radius: 999px;
             display: flex;
             align-items: center;
-            padding: 0 16px;
-            gap: 12px;
+            padding: 0 14px;
+            gap: 10px;
             z-index: 50;
             pointer-events: none;
-            cursor: pointer;
+            cursor: default;
             opacity: 0;
             transition: opacity 0.4s ease, transform 0.2s ease;
-        }
-
-        .apple-glass-pill:active {
-            transform: translateX(-50%) scale(0.96);
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .apple-glass-pill.visible {
@@ -461,14 +450,14 @@
             position: absolute;
             top: calc(18px + env(safe-area-inset-top, 0px));
             left: 20px;
-            height: 34px;
+            height: 36px;
             padding: 0 14px;
             border-radius: 999px;
             background: var(--glass-bg);
             backdrop-filter: blur(24px) saturate(180%);
             -webkit-backdrop-filter: blur(24px) saturate(180%);
             border: var(--glass-border);
-            box-shadow: inset 0 0.5px 0.5px rgba(255, 255, 255, 0.35), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.45), inset 0 0.5px 0.5px rgba(255, 255, 255, 0.90), 0 10px 32px -4px rgba(0, 0, 0, 0.75);
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -482,6 +471,8 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.4s ease, transform 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .apple-return-btn:active {
@@ -501,6 +492,20 @@
             fill: none;
             stroke-linecap: round;
             stroke-linejoin: round;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .stage-landing,
+            .stage-second,
+            .book-stage,
+            .ambient-layer,
+            .photo-container,
+            .page-leaf,
+            .apple-glass-pill,
+            .apple-return-btn {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
@@ -573,11 +578,11 @@
             <span>Cover</span>
         </button>
 
-        <nav class="apple-glass-pill" id="glassPill" title="Return to Cover">
+        <nav class="apple-glass-pill" id="glassPill" aria-label="Album progress">
             <div class="glass-pill-bar">
                 <div class="glass-pill-fill" id="glassFill"></div>
             </div>
-            <span class="glass-pill-text" id="glassLabel">01 / 25</span>
+            <span class="glass-pill-text" id="glassLabel" aria-live="polite" aria-atomic="true">01 / 25</span>
         </nav>
 
     </main>
@@ -655,7 +660,7 @@
             const img = document.createElement('img');
             img.src = photo.url;
             img.alt = `Photo ${photo.id}`;
-            if (idx === 0) img.fetchPriority = 'high';
+            if (idx <= 1) img.fetchPriority = 'high';
             else img.loading = 'lazy';
 
             const spine = document.createElement('div');
@@ -664,21 +669,17 @@
             const shading = document.createElement('div');
             shading.className = 'page-shading';
 
-            const sheen = document.createElement('div');
-            sheen.className = 'glass-sheen';
-
             photoUrls[idx] = photo.url;
             setupImageResolution(img, idx, photo.id);
 
             container.appendChild(img);
             container.appendChild(spine);
             container.appendChild(shading);
-            container.appendChild(sheen);
             leaf.appendChild(container);
             page.appendChild(leaf);
             stage.appendChild(page);
 
-            pages.push({ page, leaf, container, img, spine, shading, sheen, id: photo.id });
+            pages.push({ page, leaf, container, img, spine, shading, id: photo.id });
         });
 
         // Initialize ambient background to landing photo
@@ -704,7 +705,18 @@
 
                 stage.style.opacity = '0';
                 glassPill.classList.remove('visible');
-                if (returnCoverBtn) returnCoverBtn.classList.remove('visible');
+                glassPill.style.opacity = '';
+                glassPill.style.pointerEvents = '';
+                if (returnCoverBtn) {
+                    returnCoverBtn.classList.remove('visible');
+                    returnCoverBtn.style.opacity = '';
+                    returnCoverBtn.style.pointerEvents = '';
+                }
+
+                // Restore landing ambient image
+                ambientA.style.backgroundImage = `url('./photos/landing.jpeg')`;
+                ambientA.style.opacity = '0.88';
+                ambientB.style.opacity = '0';
             } else if (journeyPhase === 1) {
                 // Stage 2: Second Page
                 stageLanding.style.transform = 'translateY(-100%)';
@@ -717,7 +729,19 @@
 
                 stage.style.opacity = '0';
                 glassPill.classList.remove('visible');
-                if (returnCoverBtn) returnCoverBtn.classList.remove('visible');
+                glassPill.style.opacity = '';
+                glassPill.style.pointerEvents = '';
+                if (returnCoverBtn) {
+                    returnCoverBtn.classList.remove('visible');
+                    returnCoverBtn.style.opacity = '';
+                    returnCoverBtn.style.pointerEvents = '';
+                }
+
+                // Ambient for Stage 2
+                const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : (photoUrls[1] || './photos/2.jpeg');
+                ambientA.style.backgroundImage = `url('${s2Src}')`;
+                ambientA.style.opacity = '0.88';
+                ambientB.style.opacity = '0';
             } else if (journeyPhase === 2) {
                 // Stage 3: Spatial 3D Album
                 stageLanding.style.transform = 'translateY(-100%)';
@@ -743,25 +767,32 @@
         document.querySelectorAll('.scroll-down-cue').forEach(cue => {
             cue.addEventListener('click', (e) => {
                 e.stopPropagation();
+                if (isTransitioningPhase) return;
                 setJourneyPhase(journeyPhase + 1);
             });
         });
 
-        // Instant Return to Cover handler (Option B)
+        // Instant Return to Cover handler (Option B - Glitch-Free & Race-Safe)
         function returnToCover(e) {
             if (e) e.stopPropagation();
+            if (animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            }
+            isTransitioning = false;
             resetZoomImmediate();
-            currentState = 0;
-            displayProgress = 0;
-            renderBookTurn(0, 0);
             setJourneyPhase(0);
+
+            // Defer reset of album state until Stage 3 is fully obscured
+            setTimeout(() => {
+                currentState = 0;
+                displayProgress = 0;
+                renderBookTurn(0, 0);
+            }, 450);
         }
 
         if (returnCoverBtn) {
             returnCoverBtn.addEventListener('click', returnToCover);
-        }
-        if (glassPill) {
-            glassPill.addEventListener('click', returnToCover);
         }
 
         // -------------------------------------------------------------
@@ -777,6 +808,7 @@
         let dragStartY = 0;
         let dragFraction = 0;
         let touchHistory = [];
+        let gestureAxis = null; // 'horizontal' | 'vertical' | null
         const SWIPE_PIXELS = 220;
 
         let zoom = {
@@ -789,6 +821,18 @@
             panStartX: 0,
             panStartY: 0
         };
+
+        function clampPan(x, y, scale) {
+            if (scale <= 1.05) return { x: 0, y: 0, maxPanX: 0, maxPanY: 0 };
+            const maxPanX = (window.innerWidth * (scale - 1)) / 2;
+            const maxPanY = (window.innerHeight * (scale - 1)) / 2;
+            return {
+                x: Math.max(-maxPanX, Math.min(maxPanX, x)),
+                y: Math.max(-maxPanY, Math.min(maxPanY, y)),
+                maxPanX,
+                maxPanY
+            };
+        }
 
         function applyDynamicTransform(container, scale, x = 0, y = 0, animate = true) {
             zoom.scale = scale;
@@ -809,11 +853,11 @@
                 }
             } else {
                 container.style.transform = 'translate3d(0, 0, 0) scale(1)';
-                glassPill.style.opacity = '1';
-                glassPill.style.pointerEvents = 'auto';
+                glassPill.style.opacity = '';
+                glassPill.style.pointerEvents = '';
                 if (returnCoverBtn) {
-                    returnCoverBtn.style.opacity = '1';
-                    returnCoverBtn.style.pointerEvents = 'auto';
+                    returnCoverBtn.style.opacity = '';
+                    returnCoverBtn.style.pointerEvents = '';
                 }
                 zoom.scale = 1;
                 zoom.x = 0;
@@ -828,9 +872,63 @@
         }
 
         // -------------------------------------------------------------
-        // DIRECTIONAL 3D BOOK TURN ENGINE
+        // DIRECTIONAL 3D BOOK TURN ENGINE (With Elastic Overscroll)
         // -------------------------------------------------------------
         function renderBookTurn(progress, anchorState = currentState) {
+            // G-06: Top pull at Photo 0 (elastic rubberbanding preview)
+            if (progress < 0) {
+                const overscroll = -progress;
+                const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
+                const item = pages[0];
+                if (item) {
+                    item.page.style.display = 'flex';
+                    item.page.style.zIndex = '20';
+                    item.leaf.style.transformOrigin = 'center center';
+                    const ty = elasticFrac * 55;
+                    const rx = elasticFrac * 7;
+                    const s = 1 - elasticFrac * 0.05;
+                    item.leaf.style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0) rotateX(${rx.toFixed(2)}deg) scale(${s.toFixed(3)})`;
+                    item.leaf.style.opacity = (1 - elasticFrac * 0.22).toFixed(3);
+                    item.shading.style.opacity = (elasticFrac * 0.28).toFixed(2);
+                }
+                ambientA.style.opacity = (0.88 - elasticFrac * 0.25).toFixed(3);
+
+                for (let i = 1; i < TOTAL_PHOTOS; i++) {
+                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.zIndex = '0';
+                }
+
+                if (glassFill) glassFill.style.width = '0%';
+                if (glassLabel) glassLabel.textContent = `01 / ${String(TOTAL_PHOTOS).padStart(2, '0')}`;
+                return;
+            }
+
+            // G-07: Bottom push at Photo 24 (elastic boundary resistance)
+            if (progress > TOTAL_PHOTOS - 1) {
+                const overscroll = progress - (TOTAL_PHOTOS - 1);
+                const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
+                const item = pages[TOTAL_PHOTOS - 1];
+                if (item) {
+                    item.page.style.display = 'flex';
+                    item.page.style.zIndex = '20';
+                    item.leaf.style.transformOrigin = 'left center';
+                    const angle = -elasticFrac * 16;
+                    const zLift = elasticFrac * 22;
+                    item.leaf.style.transform = `translate3d(0, 0, ${zLift.toFixed(1)}px) rotateY(${angle.toFixed(2)}deg)`;
+                    item.leaf.style.opacity = '1';
+                    item.shading.style.opacity = (elasticFrac * 0.38).toFixed(2);
+                }
+
+                for (let i = 0; i < TOTAL_PHOTOS - 1; i++) {
+                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.zIndex = '0';
+                }
+
+                if (glassFill) glassFill.style.width = '100%';
+                if (glassLabel) glassLabel.textContent = `${String(TOTAL_PHOTOS).padStart(2, '0')} / ${String(TOTAL_PHOTOS).padStart(2, '0')}`;
+                return;
+            }
+
             const pClamped = Math.max(0, Math.min(TOTAL_PHOTOS - 1, progress));
             const delta = pClamped - anchorState;
             const isForward = delta >= 0;
@@ -857,7 +955,6 @@
                 item.leaf.style.transform = 'translate3d(0, 0, 0) rotateY(0deg)';
                 item.leaf.style.opacity = '1';
                 item.shading.style.opacity = '0';
-                if (item.sheen) item.sheen.style.opacity = '0';
 
                 if (photoUrls[activeIdx]) {
                     ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
@@ -876,7 +973,6 @@
 
                 const zLift = Math.sin(frac * Math.PI) * 52;
                 const leafOpacity = frac > 0.85 ? Math.max(0, 1 - (frac - 0.85) * 6.5) : 1;
-                const sheenIntensity = Math.sin(frac * Math.PI) * 0.75;
 
                 if (isForward) {
                     topItem.leaf.style.transformOrigin = 'left center';
@@ -902,7 +998,6 @@
 
                 topItem.leaf.style.opacity = leafOpacity.toFixed(3);
                 topItem.shading.style.opacity = (Math.sin(frac * Math.PI) * 0.45).toFixed(2);
-                if (topItem.sheen) topItem.sheen.style.opacity = sheenIntensity.toFixed(2);
 
                 const underZ = -(1 - frac) * 38;
                 const underScale = 0.96 + frac * 0.04;
@@ -910,7 +1005,6 @@
                 underItem.leaf.style.transform = `translate3d(0, 0, ${underZ.toFixed(1)}px) scale(${underScale.toFixed(3)}) rotateY(0deg)`;
                 underItem.leaf.style.opacity = '1';
                 underItem.shading.style.opacity = ((1 - frac) * 0.32).toFixed(2);
-                if (underItem.sheen) underItem.sheen.style.opacity = '0';
 
                 if (photoUrls[activeIdx] && photoUrls[targetIdx]) {
                     ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
@@ -932,22 +1026,35 @@
             }
         }
 
+        // Apple-style weighted kinematics
         function snapToState(targetIdx) {
             resetZoomImmediate();
             if (animId) cancelAnimationFrame(animId);
             isTransitioning = true;
+
+            // Lookahead preloader: eager-fetch adjacent & upcoming photos
+            for (let offset = 1; offset <= 2; offset++) {
+                const aheadIdx = targetIdx + offset;
+                if (aheadIdx < TOTAL_PHOTOS && pages[aheadIdx] && pages[aheadIdx].img) {
+                    pages[aheadIdx].img.loading = 'eager';
+                }
+            }
+            if (targetIdx > 0 && pages[targetIdx - 1] && pages[targetIdx - 1].img) {
+                pages[targetIdx - 1].img.loading = 'eager';
+            }
 
             const fromProgress = displayProgress;
             const toProgress = Math.max(0, Math.min(TOTAL_PHOTOS - 1, targetIdx));
             const anchor = currentState;
             const startTime = performance.now();
             const distance = Math.abs(toProgress - fromProgress);
-            const duration = Math.min(560, Math.max(380, 520 * Math.pow(distance, 0.4)));
+            const duration = Math.min(560, Math.max(380, 520 * Math.pow(Math.max(0.1, distance), 0.4)));
 
             function step(now) {
                 const elapsed = now - startTime;
                 const t = Math.min(1, elapsed / duration);
-                const ease = 1 - Math.pow(1 - t, 3.2);
+                // Apple-style quintic deceleration curve
+                const ease = 1 - Math.pow(1 - t, 3.6);
 
                 displayProgress = fromProgress + (toProgress - fromProgress) * ease;
                 renderBookTurn(displayProgress, anchor);
@@ -967,7 +1074,7 @@
         }
 
         // -------------------------------------------------------------
-        // GESTURE CONTROLLER (Drives Cover -> Prologue -> Album Pages)
+        // GESTURE CONTROLLER (Bulletproof Touch, Zoom, & Kinematic Latch)
         // -------------------------------------------------------------
         let lastTapTime = 0;
         let lastTapX = 0;
@@ -978,14 +1085,24 @@
         let isSwipeGesture = false;
 
         canvas.addEventListener('touchstart', (e) => {
+            // Multi-touch handling: Pinch-to-zoom setup (Bug 5 fix)
             if (journeyPhase === 2 && e.touches.length === 2) {
-                isDragging = false;
+                if (isDragging) {
+                    isDragging = false;
+                    dragFraction = 0;
+                    snapToState(currentState);
+                }
                 lastTapTime = 0;
                 zoom.initialDist = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
                 zoom.initialScale = zoom.scale;
+                return;
+            }
+
+            // Transition lock: ignore touches during active transition (Bug 4 fix)
+            if (isTransitioning || isTransitioningPhase) {
                 return;
             }
 
@@ -996,20 +1113,12 @@
                 dragStartY = e.touches[0].clientY;
                 touchStartTime = performance.now();
                 isSwipeGesture = false;
+                gestureAxis = null;
 
                 if (journeyPhase === 2 && zoom.isZoomed) {
                     zoom.panStartX = e.touches[0].clientX - zoom.x;
                     zoom.panStartY = e.touches[0].clientY - zoom.y;
                     return;
-                }
-
-                if (journeyPhase === 2 && isTransitioning) {
-                    if (animId) cancelAnimationFrame(animId);
-                    displayProgress = Math.round(displayProgress);
-                    currentState = displayProgress;
-                    renderBookTurn(currentState, currentState);
-                    isTransitioning = false;
-                    animId = null;
                 }
 
                 isDragging = true;
@@ -1019,7 +1128,9 @@
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
+            // Two-finger pinch-to-zoom
             if (journeyPhase === 2 && e.touches.length === 2 && zoom.initialDist > 0) {
+                e.preventDefault();
                 const currentDist = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
@@ -1030,46 +1141,64 @@
                 return;
             }
 
-            if (e.touches.length === 1) {
-                const distMoved = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
-                if (distMoved > 8) {
-                    isSwipeGesture = true;
-                    lastTapTime = 0;
-                }
-            }
-
-            if (journeyPhase === 2 && zoom.isZoomed && e.touches.length === 1) {
-                const nextX = e.touches[0].clientX - zoom.panStartX;
-                const nextY = e.touches[0].clientY - zoom.panStartY;
-                applyDynamicTransform(pages[currentState].container, zoom.scale, nextX, nextY, false);
-                return;
-            }
-
-            if (!isDragging || (journeyPhase === 2 && zoom.isZoomed)) return;
+            if (e.touches.length !== 1) return;
 
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
             const dx = touchX - dragStartX;
             const dy = touchY - dragStartY;
+            const totalDist = Math.hypot(dx, dy);
+
+            // Establish axial lock once threshold exceeded (Bug 2 fix)
+            if (totalDist > 8) {
+                isSwipeGesture = true;
+                lastTapTime = 0;
+                if (!gestureAxis) {
+                    gestureAxis = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical';
+                }
+            }
+
+            // Zoomed pan with rubberband bounds (Bug 9 fix)
+            if (journeyPhase === 2 && zoom.isZoomed) {
+                e.preventDefault();
+                const rawX = touchX - zoom.panStartX;
+                const rawY = touchY - zoom.panStartY;
+                const bounds = clampPan(rawX, rawY, zoom.scale);
+                let panX = rawX;
+                let panY = rawY;
+                if (rawX > bounds.maxPanX) panX = bounds.maxPanX + (rawX - bounds.maxPanX) * 0.3;
+                else if (rawX < -bounds.maxPanX) panX = -bounds.maxPanX + (rawX + bounds.maxPanX) * 0.3;
+                if (rawY > bounds.maxPanY) panY = bounds.maxPanY + (rawY - bounds.maxPanY) * 0.3;
+                else if (rawY < -bounds.maxPanY) panY = -bounds.maxPanY + (rawY + bounds.maxPanY) * 0.3;
+
+                applyDynamicTransform(pages[currentState].container, zoom.scale, panX, panY, false);
+                return;
+            }
+
+            if (!isDragging) return;
+
+            // Prevent default pull-to-refresh & browser viewport bounce (Bug 10 fix)
+            e.preventDefault();
 
             const now = performance.now();
             touchHistory.push({ x: touchX, y: touchY, t: now });
-            while (touchHistory.length > 2 && now - touchHistory[0].t > 100) {
+            while (touchHistory.length > 2 && now - touchHistory[0].t > 120) {
                 touchHistory.shift();
             }
 
             if (journeyPhase === 2) {
-                // IN ALBUM: 3D Book Turn Preview
-                const isHorizontal = Math.abs(dx) > Math.abs(dy);
-                const delta = isHorizontal ? -dx : -dy;
-                const rawFraction = delta / SWIPE_PIXELS;
+                // IN ALBUM: 3D Book Turn Preview with locked axis (Bug 1 fix)
+                const primaryDelta = gestureAxis === 'horizontal' ? -dx : -dy;
+                const rawFraction = primaryDelta / SWIPE_PIXELS;
 
-                // Allow backward drag on Photo 1 to pull back toward Prologue
+                // G-06: Pulling back on Photo 0 (elastic tactile resistance)
+                // G-07: Pushing forward on Photo 24 (elastic tactile resistance)
                 if (currentState === 0 && rawFraction < 0) {
-                    dragFraction = rawFraction * 0.5;
+                    dragFraction = -Math.tanh(Math.abs(rawFraction) * 0.9) * 0.42;
                 } else if (currentState === TOTAL_PHOTOS - 1 && rawFraction > 0) {
-                    dragFraction = rawFraction * 0.2;
+                    dragFraction = Math.tanh(rawFraction * 0.8) * 0.32;
                 } else {
+                    // Hard swipe clamp: single gesture cannot advance more than 1 state
                     dragFraction = Math.max(-0.95, Math.min(0.95, rawFraction));
                 }
 
@@ -1083,6 +1212,11 @@
 
             if (journeyPhase === 2 && zoom.scale < 1.15 && !zoom.isZoomed) {
                 applyDynamicTransform(pages[currentState].container, 1, 0, 0, true);
+            } else if (journeyPhase === 2 && zoom.isZoomed) {
+                const clamped = clampPan(zoom.x, zoom.y, zoom.scale);
+                if (zoom.x !== clamped.x || zoom.y !== clamped.y) {
+                    applyDynamicTransform(pages[currentState].container, zoom.scale, clamped.x, clamped.y, true);
+                }
             }
 
             const now = performance.now();
@@ -1107,8 +1241,9 @@
                         const centerY = rect.top + rect.height / 2;
                         const focalShiftX = (centerX - tapX) * 1.4;
                         const focalShiftY = (centerY - tapY) * 1.4;
+                        const bounds = clampPan(focalShiftX, focalShiftY, 2.4);
 
-                        applyDynamicTransform(activeContainer, 2.4, focalShiftX, focalShiftY, true);
+                        applyDynamicTransform(activeContainer, 2.4, bounds.x, bounds.y, true);
                     }
                     return;
                 } else {
@@ -1120,18 +1255,27 @@
                 lastTapTime = 0;
             }
 
-            if (!isDragging || (journeyPhase === 2 && zoom.isZoomed)) return;
+            if (!isDragging || (journeyPhase === 2 && zoom.isZoomed)) {
+                isDragging = false;
+                return;
+            }
             isDragging = false;
 
+            // Compute velocity along the active gesture axis (Bug 1 fix)
             let velocity = 0;
+            let axisDelta = 0;
             let dy = 0;
+
             if (touchHistory.length >= 2) {
                 const oldest = touchHistory[0];
                 const newest = touchHistory[touchHistory.length - 1];
                 const dt = newest.t - oldest.t;
-                dy = oldest.y - newest.y;
+                dy = oldest.y - newest.y; // Positive = swiping UP
+                const dx = oldest.x - newest.x; // Positive = swiping LEFT
+
+                axisDelta = gestureAxis === 'horizontal' ? dx : dy;
                 if (dt > 10) {
-                    velocity = dy / dt;
+                    velocity = axisDelta / dt;
                 }
             }
 
@@ -1155,17 +1299,23 @@
             }
 
             if (journeyPhase === 2) {
-                // Inside Album:
-                // If swiping back on Photo 0: Return to Prologue
-                if (currentState === 0 && (dragFraction < -0.15 || velocity < -0.25)) {
+                // G-06: Swiping back on Photo 0 returns to Prologue
+                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.25)) {
                     setJourneyPhase(1);
                     return;
                 }
 
+                // G-07: Pushing past Photo 24 snaps back to Photo 24
+                if (currentState === TOTAL_PHOTOS - 1 && dragFraction > 0) {
+                    snapToState(TOTAL_PHOTOS - 1);
+                    return;
+                }
+
                 let target = currentState;
-                if (dragFraction > 0.15 || velocity > 0.25) {
+                // Strict single-state advance threshold
+                if (dragFraction > 0.16 || velocity > 0.25) {
                     target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
-                } else if (dragFraction < -0.15 || velocity < -0.25) {
+                } else if (dragFraction < -0.16 || velocity < -0.25) {
                     target = Math.max(0, currentState - 1);
                 } else {
                     target = currentState;
@@ -1175,23 +1325,183 @@
             }
         });
 
-        // Trackpad / Wheel Support
-        let wheelDebounce = null;
+        // -------------------------------------------------------------
+        // DESKTOP POINTER / MOUSE DRAG PARITY (Bug 11 fix)
+        // -------------------------------------------------------------
+        let isPointerDragging = false;
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+        let pointerStartTime = 0;
+        let pointerHistory = [];
+        let pointerGestureAxis = null;
+
+        canvas.addEventListener('pointerdown', (e) => {
+            if (e.pointerType !== 'mouse' || e.button !== 0) return;
+            if (isTransitioning || isTransitioningPhase) return;
+
+            isPointerDragging = true;
+            pointerStartX = e.clientX;
+            pointerStartY = e.clientY;
+            pointerStartTime = performance.now();
+            pointerGestureAxis = null;
+            dragFraction = 0;
+            pointerHistory = [{ x: e.clientX, y: e.clientY, t: pointerStartTime }];
+
+            if (journeyPhase === 2 && zoom.isZoomed) {
+                zoom.panStartX = e.clientX - zoom.x;
+                zoom.panStartY = e.clientY - zoom.y;
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isPointerDragging) return;
+
+            const dx = e.clientX - pointerStartX;
+            const dy = e.clientY - pointerStartY;
+            const totalDist = Math.hypot(dx, dy);
+
+            if (totalDist > 6 && !pointerGestureAxis) {
+                pointerGestureAxis = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical';
+            }
+
+            if (journeyPhase === 2 && zoom.isZoomed) {
+                const rawX = e.clientX - zoom.panStartX;
+                const rawY = e.clientY - zoom.panStartY;
+                const bounds = clampPan(rawX, rawY, zoom.scale);
+                applyDynamicTransform(pages[currentState].container, zoom.scale, bounds.x, bounds.y, false);
+                return;
+            }
+
+            const now = performance.now();
+            pointerHistory.push({ x: e.clientX, y: e.clientY, t: now });
+            while (pointerHistory.length > 2 && now - pointerHistory[0].t > 120) {
+                pointerHistory.shift();
+            }
+
+            if (journeyPhase === 2) {
+                const primaryDelta = pointerGestureAxis === 'horizontal' ? -dx : -dy;
+                const rawFraction = primaryDelta / SWIPE_PIXELS;
+
+                if (currentState === 0 && rawFraction < 0) {
+                    dragFraction = -Math.tanh(Math.abs(rawFraction) * 0.9) * 0.42;
+                } else if (currentState === TOTAL_PHOTOS - 1 && rawFraction > 0) {
+                    dragFraction = Math.tanh(rawFraction * 0.8) * 0.32;
+                } else {
+                    dragFraction = Math.max(-0.95, Math.min(0.95, rawFraction));
+                }
+
+                displayProgress = currentState + dragFraction;
+                renderBookTurn(displayProgress, currentState);
+            }
+        });
+
+        window.addEventListener('pointerup', (e) => {
+            if (!isPointerDragging) return;
+            isPointerDragging = false;
+
+            if (journeyPhase === 2 && zoom.isZoomed) {
+                const clamped = clampPan(zoom.x, zoom.y, zoom.scale);
+                applyDynamicTransform(pages[currentState].container, zoom.scale, clamped.x, clamped.y, true);
+                return;
+            }
+
+            let velocity = 0;
+            let dy = 0;
+            if (pointerHistory.length >= 2) {
+                const oldest = pointerHistory[0];
+                const newest = pointerHistory[pointerHistory.length - 1];
+                const dt = newest.t - oldest.t;
+                dy = oldest.y - newest.y;
+                const dx = oldest.x - newest.x;
+                const axisDelta = pointerGestureAxis === 'horizontal' ? dx : dy;
+                if (dt > 10) {
+                    velocity = axisDelta / dt;
+                }
+            }
+
+            if (journeyPhase === 0) {
+                if (dy > 40 || velocity > 0.25) setJourneyPhase(1);
+                return;
+            }
+
+            if (journeyPhase === 1) {
+                if (dy > 40 || velocity > 0.25) setJourneyPhase(2);
+                else if (dy < -40 || velocity < -0.25) setJourneyPhase(0);
+                return;
+            }
+
+            if (journeyPhase === 2) {
+                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.25)) {
+                    setJourneyPhase(1);
+                    return;
+                }
+
+                if (currentState === TOTAL_PHOTOS - 1 && dragFraction > 0) {
+                    snapToState(TOTAL_PHOTOS - 1);
+                    return;
+                }
+
+                let target = currentState;
+                if (dragFraction > 0.16 || velocity > 0.25) {
+                    target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
+                } else if (dragFraction < -0.16 || velocity < -0.25) {
+                    target = Math.max(0, currentState - 1);
+                } else {
+                    target = currentState;
+                }
+
+                snapToState(target);
+            }
+        });
+
+        // Desktop Double Click Zoom Parity
+        canvas.addEventListener('dblclick', (e) => {
+            if (journeyPhase !== 2) return;
+            const activeContainer = pages[currentState].container;
+            if (zoom.isZoomed) {
+                applyDynamicTransform(activeContainer, 1, 0, 0, true);
+            } else {
+                const rect = activeContainer.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const focalShiftX = (centerX - e.clientX) * 1.4;
+                const focalShiftY = (centerY - e.clientY) * 1.4;
+                const bounds = clampPan(focalShiftX, focalShiftY, 2.4);
+                applyDynamicTransform(activeContainer, 2.4, bounds.x, bounds.y, true);
+            }
+        });
+
+        // Trackpad / Wheel Support with Kinetic Latch (Bug 6 fix)
+        let wheelAccumulator = 0;
+        let wheelLocked = false;
+        let wheelResetTimer = null;
+        const WHEEL_THRESHOLD = 45;
+
         window.addEventListener('wheel', (e) => {
             e.preventDefault();
-            if (journeyPhase === 2 && zoom.isZoomed) return;
+            if ((journeyPhase === 2 && zoom.isZoomed) || isTransitioning || isTransitioningPhase) return;
 
-            clearTimeout(wheelDebounce);
-            wheelDebounce = setTimeout(() => { }, 160);
+            wheelAccumulator += e.deltaY;
 
-            const delta = e.deltaY;
-            if (delta > 35) {
+            clearTimeout(wheelResetTimer);
+            wheelResetTimer = setTimeout(() => {
+                wheelAccumulator = 0;
+                wheelLocked = false;
+            }, 180);
+
+            if (wheelLocked) return;
+
+            if (wheelAccumulator > WHEEL_THRESHOLD) {
+                wheelLocked = true;
+                wheelAccumulator = 0;
                 if (journeyPhase < 2) {
                     setJourneyPhase(journeyPhase + 1);
                 } else if (currentState < TOTAL_PHOTOS - 1) {
                     snapToState(currentState + 1);
                 }
-            } else if (delta < -35) {
+            } else if (wheelAccumulator < -WHEEL_THRESHOLD) {
+                wheelLocked = true;
+                wheelAccumulator = 0;
                 if (journeyPhase === 2 && currentState === 0) {
                     setJourneyPhase(1);
                 } else if (journeyPhase === 2) {
@@ -1202,17 +1512,22 @@
             }
         }, { passive: false });
 
-        // Keyboard Support (Escape / Home to return directly to Cover, Arrows to navigate)
+        // Keyboard Support with Transition Lock (Bug 10 & 12 fix)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Home') {
+                e.preventDefault();
                 if (journeyPhase > 0) returnToCover();
             } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (isTransitioning || isTransitioningPhase) return;
                 if (journeyPhase < 2) {
                     setJourneyPhase(journeyPhase + 1);
                 } else if (currentState < TOTAL_PHOTOS - 1) {
                     snapToState(currentState + 1);
                 }
             } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (isTransitioning || isTransitioningPhase) return;
                 if (journeyPhase === 2 && currentState === 0) {
                     setJourneyPhase(1);
                 } else if (journeyPhase === 2) {
@@ -1225,6 +1540,14 @@
 
         // Initialize at Stage 1 (Cover)
         setJourneyPhase(0);
+
+        // Expose QA API for empirical verification
+        window.__ALBUM__ = {
+            setJourneyPhase,
+            snapToState,
+            returnToCover,
+            getState: () => ({ journeyPhase, currentState, isTransitioning, isTransitioningPhase })
+        };
     </script>
 </body>
 
