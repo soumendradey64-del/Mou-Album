@@ -59,6 +59,9 @@ Never fabricate poetic narratives, romantic stories, friendship timelines, or fa
 ### Rule 18: Do Not Silently Change Approved Design Direction
 Never revert to previously rejected patterns (e.g., book binding hinges, chapter title screens, gold borders, or continuous web runway) without explicit discussion and ADR logging in `DECISIONS.md`.
 
+### Rule 19: Mandatory Git Push on Every Approved Update
+Every code or asset modification approved by the user must immediately be staged, committed with a descriptive message, and pushed directly to GitHub (`origin main`). When Vercel is connected to the repository, each push automatically triggers a production deployment.
+
 ---
 
 ## The Anti-Yesman Rule
