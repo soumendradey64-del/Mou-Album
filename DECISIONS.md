@@ -86,6 +86,14 @@ This log records every significant architectural, design, and interaction decisi
   4. Desktop keyboard shortcuts (`Escape` / `Home` to return to cover, arrow keys for navigation).
 * **Context:** When browsing deep into the album (e.g. Photo 15 of 25), backward swiping sequentially stepped back one photo at a time (Photo 15 -> 14 -> ... -> 1) before reaching the landing page.
 * **Rationale:** While fine-art photo-by-photo paging is ideal during forward browsing, users need a friction-free way to return directly to the cover without repetitively swiping through 15+ photos.
-* **Consequences:** Users can explore freely deep in the album and return instantly with a single tap or keystroke. Sequential photo-by-photo backward swiping is preserved as normal touch gesture behavior.
-
+### ADR-008: Curatorial Pill Separation, Desktop Pointer Parity, & Asset Rigor
+* **Date:** 2026-09-14
+* **Decision:** 
+  1. **Accidental Eject Separation:** Revert `#glassPill` to a pure curatorial indicator (`cursor: default`, no active scale, no click handler). Retain the dedicated `< Cover` button in the top safe area as the sole explicit return control to eliminate accidental ejections when viewers instinctively tap the pill to check progress.
+  2. **Desktop Pointer / Mouse Drag Parity:** Register pointer event handlers on desktop (`pointerdown`, `pointermove`, `pointerup`) with 1:1 drag preview matching mobile touch kinematics.
+  3. **Purge Fake Plastic Sheen:** Strip artificial `.glass-sheen` overlays and DOM nodes from photo containers to preserve authentic photograph presentation.
+  4. **Asset & Viewport Stabilization:** Correct Photo 5 path to `./photos/5.png` in `album-data.js`, delete duplicate WhatsApp assets, adopt `dvh` units (`100dvh`, `76dvh`), and configure immutable 1-year caching in `vercel.json`.
+* **Context:** Multi-agent QA audit identified 16 bugs across media pipelines, desktop interaction disparity, accidental ejection risks, and subtle layout shifts during mobile browser address bar retraction.
+* **Rationale:** A world-class photobook must exhibit zero network errors, predictable tactile controls on both mobile and desktop, and uncompromising visual restraint.
+* **Consequences:** Flawless zero-error execution, resilient gesture tracking across input types, and authentic Apple Liquid Glass aesthetics.
 
