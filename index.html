@@ -215,8 +215,9 @@
             z-index: 25;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            gap: 16px;
             padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 35%, #181520 0%, #060608 100%);
@@ -227,22 +228,11 @@
             pointer-events: none;
         }
 
-        .second-caption-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            max-width: 320px;
-        }
-
-        .second-heading {
-            font-family: var(--font-serif);
-            font-optical-sizing: auto;
-            text-rendering: optimizeLegibility;
-            font-size: clamp(20px, 5.2vw, 24px);
-            font-weight: 400;
-            font-style: italic;
-            color: #FDFCF9;
+        .stage-second .stage-photo-frame {
+            flex: 0 1 auto;
+            max-height: 60vh;
+            max-height: 60dvh;
+            max-width: min(340px, 88vw);
         }
 
         /* -------------------------------------------------------------
@@ -541,19 +531,12 @@
 
         <!-- =============================================================
              STAGE 2: THE SECOND PAGE
-             Edit your Stage 2 photo and text below!
+             Second featured photo with "Scroll down" below the photo
         ============================================================= -->
         <section class="stage-second" id="stageSecond">
-            <header class="stage-header">
-                <!-- EDITABLE HEADING -->
-                <div class="second-caption-block">
-                    <h2 class="second-heading" id="secondHeading">Every glance holds a story.</h2>
-                </div>
-            </header>
-
             <!-- EDITABLE BIG PHOTO (STAGE 2) -->
             <div class="stage-photo-frame">
-                <img id="stage2Photo" src="./photos/2.jpeg" alt="Featured Photograph" />
+                <img id="stage2Photo" src="./photos/second.jpeg?v=second" alt="Featured Photograph" />
             </div>
 
             <!-- "SCROLL DOWN" WRITTEN BELOW THE PHOTO -->
@@ -625,14 +608,11 @@
                     if (idx === 0) {
                         ambientA.style.backgroundImage = `url('${nextSrc}')`;
                     }
-                    if (idx === 1 && stage2Photo) {
-                        stage2Photo.src = nextSrc;
-                    }
                 }
             };
         }
 
-        // Multi-extension fallback loader for stage1Photo
+        // Multi-extension fallback loader for stage1Photo and stage2Photo
         function setupNamedImageResolution(img, baseName) {
             const exts = ['.jpeg', '.jpg', '.png', '.webp', '.JPG', '.JPEG', '.PNG'];
             let attempt = 0;
@@ -644,7 +624,7 @@
             };
         }
         setupNamedImageResolution(stage1Photo, 'landing');
-        setupImageResolution(stage2Photo, 1, 2);
+        setupNamedImageResolution(stage2Photo, 'second');
 
         albumData.forEach((photo, idx) => {
             const page = document.createElement('div');
@@ -738,7 +718,7 @@
                 }
 
                 // Ambient for Stage 2
-                const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : (photoUrls[1] || './photos/2.jpeg');
+                const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : './photos/second.jpeg';
                 ambientA.style.backgroundImage = `url('${s2Src}')`;
                 ambientA.style.opacity = '0.88';
                 ambientB.style.opacity = '0';
