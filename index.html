@@ -470,7 +470,7 @@
 
             <!-- EDITABLE BIG PHOTO (STAGE 1) -->
             <div class="stage-photo-frame">
-                <img id="stage1Photo" src="./photos/landing.jpeg" alt="Featured Photograph" />
+                <img id="stage1Photo" src="./photos/landing.jpeg?v=landing" alt="Featured Photograph" />
             </div>
 
             <footer class="stage-footer">
@@ -560,7 +560,6 @@
                     photoUrls[idx] = nextSrc;
                     if (idx === 0) {
                         ambientA.style.backgroundImage = `url('${nextSrc}')`;
-                        if (stage1Photo) stage1Photo.src = nextSrc;
                     }
                     if (idx === 1 && stage2Photo) {
                         stage2Photo.src = nextSrc;
@@ -623,8 +622,8 @@
             pages.push({ page, leaf, container, img, spine, shading, sheen, id: photo.id });
         });
 
-        // Initialize ambient background to first photo
-        if (albumData[0]) ambientA.style.backgroundImage = `url('${albumData[0].url}')`;
+        // Initialize ambient background to landing photo
+        ambientA.style.backgroundImage = `url('./photos/landing.jpeg')`;
 
         // -------------------------------------------------------------
         // PHASE JOURNEY MANAGER (Landing -> Second Page -> Album)
