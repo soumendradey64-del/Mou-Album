@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Spatial Photo Album</title>
+  
+  <!-- Typography: Newsreader (Refined Fine-Art Serif) & SF Pro/Inter (Neutral Apple Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =============================================================
+       APPLE-INSPIRED RESTRAINT & SPATIAL TOKENS (DESIGN.md)
+       Pure photographic dominance on an archival alabaster canvas.
+       ============================================================= */
+    :root {
+      --bg-canvas: #FAF9F6;
+      --bg-white: #FFFFFF;
+      --bg-mount: #EAE9E4;
+      
+      --text-dark: #1C1B19;
+      --text-graphite: #575653;
+      --text-muted: #8E8D89;
+      --border-hairline: rgba(0, 0, 0, 0.06);
+      
+      /* Apple Liquid Glass Material Tokens */
+      --glass-bg: rgba(255, 255, 255, 0.78);
+      --glass-blur: blur(24px) saturate(180%);
+      --glass-border: 0.5px solid rgba(255, 255, 255, 0.65);
+      --glass-rim: 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+      --glass-highlight: inset 0 0.5px 0.5px rgba(255, 255, 255, 0.95);
+      --glass-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      background-color: var(--bg-mount);
+      color: var(--text-dark);
+      font-family: var(--font-sans);
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* -------------------------------------------------------------
+       MOBILE DEVICE CANVAS (390px PORTRAIT REFERENCE)
+       On desktop: Framed 390px x 844px floating mobile review canvas
+       On mobile: Native 100vw x 100dvh edge-to-edge container
+       ------------------------------------------------------------- */
+    .viewport-canvas {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: var(--bg-canvas);
+      border-radius: 46px;
+      box-shadow: 0 28px 70px -15px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      touch-action: none;
+      cursor: grab;
+    }
+    .viewport-canvas:active {
+      cursor: grabbing;
+    }
+
+    @media (max-width: 440px) {
+      body {
+        background: var(--bg-canvas);
+        padding: 0;
+        justify-content: flex-start;
+      }
+      .viewport-canvas {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* -------------------------------------------------------------
+       FIXED 3D SPATIAL STAGE (CONTROLLED BY SPATIAL ENGINE)
+       ------------------------------------------------------------- */
+    .spatial-stage {
+      position: absolute;
+      inset: 0;
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .spatial-plane {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform-style: preserve-3d;
+      will-change: transform, opacity;
+      pointer-events: none;
+      transition: none;
+    }
+    .spatial-plane.active {
+      display: flex;
+    }
+
+    /* -------------------------------------------------------------
+       PHOTOGRAPHIC COMPOSITIONS (CURATED 7 STYLES)
+       ------------------------------------------------------------- */
+
+    /* Typography & Metadata */
+    .caption-title {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      font-style: italic;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+    .caption-meta {
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Composition 1: Archival Matting Portrait */
+    .matting-frame {
+      width: 310px;
+      background: var(--bg-white);
+      padding: 16px 16px 28px;
+      border-radius: 1.5px;
+      box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.08);
+    }
+    .matting-frame img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      display: block;
+    }
+    .matting-caption {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 8px;
+      border-top: 0.5px solid var(--border-hairline);
+    }
+
+    /* Composition 2: Full-Bleed Edge-to-Edge Immersion */
+    .fullbleed-wrapper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .fullbleed-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .fullbleed-subtle-tag {
+      position: absolute;
+      top: calc(28px + env(safe-area-inset-top, 0px));
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.88);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Composition 3: Centered Asymmetrical Fine-Art Print */
+    .fineart-frame {
+      width: 310px;
+      background: var(--bg-white);
+      padding: 16px 16px 30px;
+      border-radius: 1.5px;
+      box-shadow: 0 14px 38px -8px rgba(0, 0, 0, 0.07);
+    }
+    .fineart-frame img {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      display: block;
+    }
+    .fineart-caption {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    /* Composition 4: Dual Spatial Planes (Stereoscopic Differential Parallax) */
+    .dual-plane-stage {
+      position: relative;
+      width: 340px;
+      height: 520px;
+      transform-style: preserve-3d;
+    }
+    .dual-print-back {
+      position: absolute;
+      top: 16px;
+      left: 12px;
+      width: 220px;
+      background: var(--bg-white);
+      padding: 10px 10px 22px;
+      border-radius: 1.5px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      transform: translateZ(-120px) rotate(-3deg);
+      will-change: transform;
+    }
+    .dual-print-back img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+    }
+    .dual-print-front {
+      position: absolute;
+      bottom: 24px;
+      right: 12px;
+      width: 236px;
+      background: var(--bg-white);
+      padding: 10px 10px 26px;
+      border-radius: 1.5px;
+      box-shadow: 0 22px 48px -8px rgba(0, 0, 0, 0.14);
+      transform: translateZ(60px) rotate(2deg);
+      will-change: transform;
+    }
+    .dual-print-front img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+    .dual-print-front .caption {
+      margin-top: 8px;
+      font-family: var(--font-serif);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-graphite);
+      text-align: right;
+    }
+
+    /* Composition 5: Wide Horizon Panoramic Letterbox */
+    .panoramic-frame {
+      width: 346px;
+      background: var(--bg-white);
+      padding: 14px 14px 26px;
+      border-radius: 1.5px;
+      box-shadow: 0 14px 38px -8px rgba(0, 0, 0, 0.07);
+    }
+    .panoramic-frame img {
+      width: 100%;
+      height: 236px;
+      object-fit: cover;
+      display: block;
+    }
+    .panoramic-caption {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 10px;
+      border-top: 0.5px solid var(--border-hairline);
+    }
+
+    /* Composition 6: Square Archival Contact Print */
+    .contact-frame {
+      width: 300px;
+      background: var(--bg-white);
+      padding: 18px 18px 36px;
+      border-radius: 1.5px;
+      box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.07);
+    }
+    .contact-frame img {
+      width: 100%;
+      height: 290px;
+      object-fit: cover;
+      display: block;
+    }
+    .contact-caption {
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    /* Composition 7: Intimate Fine-Art Portrait */
+    .intimate-frame {
+      width: 280px;
+      background: var(--bg-white);
+      padding: 16px 16px 32px;
+      border-radius: 1.5px;
+      box-shadow: 0 16px 44px -8px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .intimate-frame img {
+      width: 100%;
+      height: 340px;
+      object-fit: cover;
+      display: block;
+    }
+    .intimate-caption {
+      margin-top: 14px;
+    }
+
+    /* -------------------------------------------------------------
+       APPLE LIQUID GLASS FLOATING PILL (System Chrome Only)
+       ------------------------------------------------------------- */
+    .apple-glass-pill {
+      position: absolute;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      height: 36px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      box-shadow: var(--glass-rim), var(--glass-highlight), var(--glass-shadow);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 12px;
+      z-index: 50;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .glass-pill-bar {
+      width: 48px;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .glass-pill-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 14.3%;
+      background: var(--text-dark);
+      border-radius: 999px;
+      transition: width 0.1s ease-out;
+    }
+    .glass-pill-text {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--text-graphite);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Accessibility: Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      .spatial-plane {
+        transition: opacity 0.22s ease-out !important;
+        transform: none !important;
+      }
+      .apple-glass-pill {
+        transition: opacity 0.22s ease-out !important;
+      }
+      .glass-pill-fill {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE CANVAS CONTAINER (PRIMARY 390px PORTRAIT SHELL) -->
+  <main class="viewport-canvas" id="albumCanvas" role="region" aria-label="Spatial Photo Album">
+    
+    <!-- FIXED 3D SPATIAL STAGE (Dynamic DOM populated from album-data.js) -->
+    <div class="spatial-stage" id="spatialStage" aria-live="polite"></div>
+
+    <!-- APPLE LIQUID GLASS FLOATING PILL -->
+    <nav class="apple-glass-pill" id="glassPill" aria-label="Album progress" role="status">
+      <div class="glass-pill-bar" aria-hidden="true">
+        <div class="glass-pill-fill" id="glassFill"></div>
+      </div>
+      <span class="glass-pill-text" id="glassLabel">01 / 07</span>
+    </nav>
+
+  </main>
+
+  <!-- LOAD SPATIAL ALBUM ENGINE & DATA MODEL -->
+  <script src="spatial-engine.js"></script>
+  <script type="module">
+    import { albumData } from './album-data.js';
+
+    // -------------------------------------------------------------
+    // DYNAMIC DOM BUILDER (Driven cleanly by album-data.js)
+    // -------------------------------------------------------------
+    const stage = document.getElementById('spatialStage');
+
+    albumData.forEach((photo, idx) => {
+      const plane = document.createElement('div');
+      plane.className = `spatial-plane ${idx === 0 ? 'active' : ''}`;
+      plane.id = `plane-${idx}`;
+      plane.setAttribute('role', 'group');
+      plane.setAttribute('aria-roledescription', 'photograph');
+      plane.setAttribute('aria-label', `${photo.title} (${photo.meta})`);
+
+      if (photo.type === 'matting') {
+        plane.innerHTML = `
+          <figure class="matting-frame">
+            <img src="${photo.url}" alt="${photo.alt}" ${idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} />
+            <figcaption class="matting-caption">
+              <span class="caption-title">${photo.title}</span>
+              <span class="caption-meta">${photo.meta}</span>
+            </figcaption>
+          </figure>
+        `;
+      } else if (photo.type === 'fullbleed') {
+        plane.innerHTML = `
+          <figure class="fullbleed-wrapper">
+            <div class="fullbleed-subtle-tag">
+              <span>${photo.title}</span>
+              <span>${photo.meta}</span>
+            </div>
+            <img src="${photo.url}" alt="${photo.alt}" ${idx <= 1 ? 'fetchpriority="high"' : 'loading="lazy"'} />
+          </figure>
+        `;
+      } else if (photo.type === 'fineart') {
+        plane.innerHTML = `
+          <figure class="fineart-frame">
+            <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+            <figcaption class="fineart-caption">
+              <span class="caption-title">${photo.title}</span>
+              <span class="caption-meta">${photo.meta}</span>
+            </figcaption>
+          </figure>
+        `;
+      } else if (photo.type === 'dual') {
+        plane.innerHTML = `
+          <div class="dual-plane-stage">
+            <figure class="dual-print-back" id="dualBack">
+              <img src="${photo.backUrl}" alt="${photo.altBack}" loading="lazy" />
+            </figure>
+            <figure class="dual-print-front" id="dualFront">
+              <img src="${photo.frontUrl}" alt="${photo.altFront}" loading="lazy" />
+              <div class="caption">${photo.title} · ${photo.meta}</div>
+            </figure>
+          </div>
+        `;
+      } else if (photo.type === 'panoramic') {
+        plane.innerHTML = `
+          <figure class="panoramic-frame">
+            <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+            <figcaption class="panoramic-caption">
+              <span class="caption-title">${photo.title}</span>
+              <span class="caption-meta">${photo.meta}</span>
+            </figcaption>
+          </figure>
+        `;
+      } else if (photo.type === 'square') {
+        plane.innerHTML = `
+          <figure class="contact-frame">
+            <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+            <figcaption class="contact-caption">
+              <div class="caption-title">${photo.title}</div>
+              <div class="caption-meta" style="margin-top: 4px;">${photo.meta}</div>
+            </figcaption>
+          </figure>
+        `;
+      } else if (photo.type === 'intimate') {
+        plane.innerHTML = `
+          <figure class="intimate-frame">
+            <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+            <figcaption class="intimate-caption">
+              <div class="caption-title">${photo.title}</div>
+              <div class="caption-meta" style="margin-top: 4px;">${photo.meta}</div>
+            </figcaption>
+          </figure>
+        `;
+      }
+
+      stage.appendChild(plane);
+    });
+
+    // -------------------------------------------------------------
+    // INITIALIZE CONTROLLED SPATIAL ENGINE
+    // - 1 Gesture = Exactly 1 Photo transition (Hard Clamp)
+    // - 1:1 Tactile drag preview with Apple easing settling
+    // - 550ms Transition latch preventing rapid flick skips
+    // - Trackpad wheel normalization with debounced idle latch
+    // -------------------------------------------------------------
+    const albumEngine = new SpatialAlbumEngine({
+      containerSelector: '#albumCanvas',
+      planeSelector: '.spatial-plane',
+      totalPhotos: albumData.length,
+      transitionDuration: 550,
+      swipeRangePx: 260,
+      distanceThreshold: 0.22,
+      velocityThreshold: 0.40,
+      wheelThreshold: 60,
+      wheelDebounceMs: 180,
+      enablePointerEvents: true,
+      onStateChange: (stateIndex, activeEl) => {
+        const label = document.getElementById('glassLabel');
+        if (label && albumData[stateIndex]) {
+          label.setAttribute('aria-label', `Photo ${stateIndex + 1} of ${albumData.length}: ${albumData[stateIndex].title}`);
+        }
+      }
+    });
+
+    window.albumEngine = albumEngine;
+  </script>
+</body>
+</html>

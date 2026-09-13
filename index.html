@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Moments in Time — Spatial Exhibition</title>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #070709;
+            --gold-accent: #d4af37;
+            --glass-bg: rgba(18, 18, 22, 0.65);
+            --glass-border: 0.5px solid rgba(255, 255, 255, 0.18);
+            --font-serif: 'Newsreader', Georgia, serif;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html,
+        body {
+            background-color: var(--bg-dark);
+            color: #FFFFFF;
+            font-family: var(--font-sans);
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* FULL VIEWPORT CANVAS */
+        .viewport-canvas {
+            position: relative;
+            width: 390px;
+            height: 844px;
+            background: #000000;
+            border-radius: 46px;
+            box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            z-index: 5;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .viewport-canvas:active {
+            cursor: grabbing;
+        }
+
+        @media (max-width: 440px) {
+            body {
+                padding: 0;
+                justify-content: flex-start;
+            }
+
+            .viewport-canvas {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+
+        /* -------------------------------------------------------------
+           STAGE 1: LANDING PAGE (Big Photo + Heading)
+        ------------------------------------------------------------- */
+        .stage-landing {
+            position: absolute;
+            inset: 0;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+            text-align: center;
+            background: radial-gradient(circle at 50% 30%, #151419 0%, #08080a 100%);
+            transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
+            will-change: transform, opacity;
+        }
+
+        .stage-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 2;
+        }
+
+        .hero-heading-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            max-width: 320px;
+        }
+
+        /* EDITABLE HEADING */
+        .landing-title {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: 0.04em;
+            color: #FDFCF9;
+        }
+
+        /* BIG PHOTO DISPLAY (STAGE 1 & STAGE 2) */
+        .stage-photo-frame {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            max-width: 340px;
+            max-height: 52vh;
+            margin: 14px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.14);
+        }
+
+        .stage-photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 20px;
+        }
+
+        .stage-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .scroll-down-cue {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 22px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.9);
+            animation: cuePulse 2.4s ease-in-out infinite;
+        }
+
+        .scroll-down-cue svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes cuePulse {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.85;
+            }
+            50% {
+                transform: translateY(4px);
+                opacity: 1;
+            }
+        }
+
+        /* -------------------------------------------------------------
+           STAGE 2: SECOND PAGE (Photo + "Scroll Down" below)
+        ------------------------------------------------------------- */
+        .stage-second {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+            text-align: center;
+            background: radial-gradient(circle at 50% 35%, #181520 0%, #060608 100%);
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
+            will-change: transform, opacity;
+            pointer-events: none;
+        }
+
+        .second-caption-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            max-width: 320px;
+        }
+
+        .second-heading {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            font-weight: 400;
+            font-style: italic;
+            color: #FDFCF9;
+        }
+
+        /* -------------------------------------------------------------
+       STAGE 3: THE 3D SPATIAL PHOTO ALBUM
+    ------------------------------------------------------------- */
+        .ambient-container {
+            position: absolute;
+            inset: -20px;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ambient-layer {
+            position: absolute;
+            inset: -30px;
+            background-size: cover;
+            background-position: center;
+            filter: blur(54px) brightness(0.48) saturate(1.5);
+            transform: scale(1.15);
+            opacity: 0;
+            transition: opacity 0.18s linear;
+            will-change: opacity;
+        }
+
+        .ambient-layer.visible {
+            opacity: 0.88;
+        }
+
+        .ambient-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+        }
+
+        .book-stage {
+            position: absolute;
+            inset: 0;
+            perspective: 1500px;
+            perspective-origin: center center;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .book-page {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        .page-leaf {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform;
+            pointer-events: auto;
+        }
+
+        .photo-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            max-width: min(370px, 92vw);
+            max-height: min(640px, 78vh);
+            border-radius: 16px 24px 24px 16px;
+            overflow: visible;
+            box-shadow:
+                0 28px 75px -12px rgba(0, 0, 0, 0.95),
+                0 10px 28px -6px rgba(0, 0, 0, 0.75),
+                inset 0 1px 1.5px rgba(255, 255, 255, 0.38),
+                inset 0 -1px 1.5px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.16);
+            transform-origin: center center;
+            will-change: transform;
+            transition: transform 0.26s cubic-bezier(0.18, 0.98, 0.28, 1);
+        }
+
+        .photo-container img {
+            max-width: min(370px, 92vw);
+            max-height: min(640px, 78vh);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            border-radius: 16px 24px 24px 16px;
+        }
+
+        .spine-crease {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 28px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.12) 45%, transparent 100%);
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+            pointer-events: none;
+            z-index: 6;
+            transition: opacity 0.2s ease;
+        }
+
+        .page-shading {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px 24px 24px 16px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.08) 45%, rgba(255, 255, 255, 0.06) 70%, rgba(0, 0, 0, 0.3) 100%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 7;
+            transition: opacity 0.05s ease;
+        }
+
+        .glass-sheen {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px 24px 24px 16px;
+            background: linear-gradient(115deg,
+                    transparent 15%,
+                    rgba(255, 255, 255, 0.04) 35%,
+                    rgba(255, 255, 255, 0.24) 50%,
+                    rgba(255, 255, 255, 0.06) 65%,
+                    transparent 85%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 8;
+            mix-blend-mode: overlay;
+            transition: opacity 0.06s ease;
+        }
+
+        .photo-container.is-zoomed {
+            z-index: 100;
+            box-shadow: 0 35px 90px rgba(0, 0, 0, 0.95);
+        }
+
+        .photo-container.is-zoomed .spine-crease,
+        .photo-container.is-zoomed .page-shading,
+        .photo-container.is-zoomed .glass-sheen {
+            opacity: 0 !important;
+        }
+
+        /* Apple Glass Navigation Pill */
+        .apple-glass-pill {
+            position: absolute;
+            bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            height: 38px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: var(--glass-border);
+            box-shadow: inset 0 0.5px 0.5px rgba(255, 255, 255, 0.35), 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .apple-glass-pill.visible {
+            opacity: 1;
+        }
+
+        .glass-pill-bar {
+            width: 48px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glass-pill-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 0%;
+            background: #FFFFFF;
+            border-radius: 999px;
+            transition: width 0.12s ease-out;
+        }
+
+        .glass-pill-text {
+            font-size: 11.5px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.85);
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="viewport-canvas" id="albumCanvas">
+
+        <!-- =============================================================
+             STAGE 1: THE LANDING PAGE
+             Edit your Stage 1 photo and heading below!
+        ============================================================= -->
+        <section class="stage-landing" id="stageLanding">
+            <header class="stage-header">
+                <!-- EDITABLE HEADING -->
+                <div class="hero-heading-block">
+                    <h1 class="landing-title" id="landingTitle">HAPPY BIRTHDAY MOUPORNA</h1>
+                </div>
+            </header>
+
+            <!-- EDITABLE BIG PHOTO (STAGE 1) -->
+            <div class="stage-photo-frame">
+                <img id="stage1Photo" src="./photos/1.jpeg" alt="Featured Photograph" />
+            </div>
+
+            <footer class="stage-footer">
+                <div class="scroll-down-cue">
+                    <span>Scroll down</span>
+                    <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+                </div>
+            </footer>
+        </section>
+
+        <!-- =============================================================
+             STAGE 2: THE SECOND PAGE
+             Edit your Stage 2 photo and text below!
+        ============================================================= -->
+        <section class="stage-second" id="stageSecond">
+            <header class="stage-header">
+                <!-- EDITABLE HEADING -->
+                <div class="second-caption-block">
+                    <h2 class="second-heading" id="secondHeading">Every glance holds a story.</h2>
+                </div>
+            </header>
+
+            <!-- EDITABLE BIG PHOTO (STAGE 2) -->
+            <div class="stage-photo-frame">
+                <img id="stage2Photo" src="./photos/2.jpeg" alt="Featured Photograph" />
+            </div>
+
+            <!-- "SCROLL DOWN" WRITTEN BELOW THE PHOTO -->
+            <footer class="stage-footer">
+                <div class="scroll-down-cue">
+                    <span>Scroll down</span>
+                    <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+                </div>
+            </footer>
+        </section>
+
+        <!-- STAGE 3: THE SPATIAL PHOTO ALBUM -->
+        <div class="ambient-container">
+            <div id="ambientA" class="ambient-layer visible"></div>
+            <div id="ambientB" class="ambient-layer"></div>
+        </div>
+
+        <div class="book-stage" id="bookStage"></div>
+
+        <nav class="apple-glass-pill" id="glassPill">
+            <div class="glass-pill-bar">
+                <div class="glass-pill-fill" id="glassFill"></div>
+            </div>
+            <span class="glass-pill-text" id="glassLabel">01 / 25</span>
+        </nav>
+
+    </main>
+
+    <script type="module">
+        import { albumData } from './album-data.js?v=25';
+
+        const canvas = document.getElementById('albumCanvas');
+        const stage = document.getElementById('bookStage');
+        const glassFill = document.getElementById('glassFill');
+        const glassLabel = document.getElementById('glassLabel');
+        const glassPill = document.getElementById('glassPill');
+        const ambientA = document.getElementById('ambientA');
+        const ambientB = document.getElementById('ambientB');
+
+        const stageLanding = document.getElementById('stageLanding');
+        const stageSecond = document.getElementById('stageSecond');
+        const stage1Photo = document.getElementById('stage1Photo');
+        const stage2Photo = document.getElementById('stage2Photo');
+
+        // Flow State: 0 = Landing (Stage 1), 1 = Second Page (Stage 2), 2 = Spatial Album (Stage 3)
+        let journeyPhase = 0;
+        let isTransitioningPhase = false;
+
+        const TOTAL_PHOTOS = albumData.length;
+        const pages = [];
+        const photoUrls = new Array(TOTAL_PHOTOS);
+
+        // Multi-extension fallback loader
+        function setupImageResolution(img, idx, id) {
+            const exts = ['.jpeg', '.jpg', '.png', '.webp', '.JPG', '.JPEG', '.PNG'];
+            let attempt = 0;
+            img.onerror = () => {
+                attempt++;
+                if (attempt < exts.length) {
+                    const nextSrc = `./photos/${id}${exts[attempt]}`;
+                    img.src = nextSrc;
+                    photoUrls[idx] = nextSrc;
+                    if (idx === 0) {
+                        ambientA.style.backgroundImage = `url('${nextSrc}')`;
+                        if (stage1Photo) stage1Photo.src = nextSrc;
+                    }
+                    if (idx === 1 && stage2Photo) {
+                        stage2Photo.src = nextSrc;
+                    }
+                }
+            };
+        }
+
+        // Setup Stage 1 & Stage 2 fallback handlers
+        setupImageResolution(stage1Photo, 0, 1);
+        setupImageResolution(stage2Photo, 1, 2);
+
+        albumData.forEach((photo, idx) => {
+            const page = document.createElement('div');
+            page.className = 'book-page';
+            page.id = `page-${idx}`;
+
+            const leaf = document.createElement('div');
+            leaf.className = 'page-leaf';
+
+            const container = document.createElement('div');
+            container.className = 'photo-container';
+
+            const img = document.createElement('img');
+            img.src = photo.url;
+            img.alt = `Photo ${photo.id}`;
+            if (idx === 0) img.fetchPriority = 'high';
+            else img.loading = 'lazy';
+
+            const spine = document.createElement('div');
+            spine.className = 'spine-crease';
+
+            const shading = document.createElement('div');
+            shading.className = 'page-shading';
+
+            const sheen = document.createElement('div');
+            sheen.className = 'glass-sheen';
+
+            photoUrls[idx] = photo.url;
+            setupImageResolution(img, idx, photo.id);
+
+            container.appendChild(img);
+            container.appendChild(spine);
+            container.appendChild(shading);
+            container.appendChild(sheen);
+            leaf.appendChild(container);
+            page.appendChild(leaf);
+            stage.appendChild(page);
+
+            pages.push({ page, leaf, container, img, spine, shading, sheen, id: photo.id });
+        });
+
+        // Initialize ambient background to first photo
+        if (albumData[0]) ambientA.style.backgroundImage = `url('${albumData[0].url}')`;
+
+        // -------------------------------------------------------------
+        // PHASE JOURNEY MANAGER (Landing -> Second Page -> Album)
+        // -------------------------------------------------------------
+        function setJourneyPhase(newPhase) {
+            if (newPhase < 0 || newPhase > 2 || isTransitioningPhase) return;
+            isTransitioningPhase = true;
+            journeyPhase = newPhase;
+
+            if (journeyPhase === 0) {
+                // Stage 1: Landing Page
+                stageLanding.style.transform = 'translateY(0%)';
+                stageLanding.style.opacity = '1';
+                stageLanding.style.pointerEvents = 'auto';
+
+                stageSecond.style.transform = 'translateY(100%)';
+                stageSecond.style.opacity = '0';
+                stageSecond.style.pointerEvents = 'none';
+
+                stage.style.opacity = '0';
+                glassPill.classList.remove('visible');
+            } else if (journeyPhase === 1) {
+                // Stage 2: Second Page
+                stageLanding.style.transform = 'translateY(-100%)';
+                stageLanding.style.opacity = '0';
+                stageLanding.style.pointerEvents = 'none';
+
+                stageSecond.style.transform = 'translateY(0%)';
+                stageSecond.style.opacity = '1';
+                stageSecond.style.pointerEvents = 'auto';
+
+                stage.style.opacity = '0';
+                glassPill.classList.remove('visible');
+            } else if (journeyPhase === 2) {
+                // Stage 3: Spatial 3D Album
+                stageLanding.style.transform = 'translateY(-100%)';
+                stageLanding.style.opacity = '0';
+                stageLanding.style.pointerEvents = 'none';
+
+                stageSecond.style.transform = 'translateY(-100%)';
+                stageSecond.style.opacity = '0';
+                stageSecond.style.pointerEvents = 'none';
+
+                stage.style.opacity = '1';
+                glassPill.classList.add('visible');
+                renderBookTurn(0, 0);
+            }
+
+            setTimeout(() => {
+                isTransitioningPhase = false;
+            }, 620);
+        }
+
+        // Tap cues to advance directly
+        document.querySelectorAll('.scroll-down-cue').forEach(cue => {
+            cue.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setJourneyPhase(journeyPhase + 1);
+            });
+        });
+
+        // -------------------------------------------------------------
+        // ALBUM INTERACTION STATE & DYNAMIC ZOOM
+        // -------------------------------------------------------------
+        let currentState = 0;
+        let displayProgress = 0;
+        let isTransitioning = false;
+        let animId = null;
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragFraction = 0;
+        let touchHistory = [];
+        const SWIPE_PIXELS = 220;
+
+        let zoom = {
+            scale: 1,
+            x: 0,
+            y: 0,
+            initialDist: 0,
+            initialScale: 1,
+            isZoomed: false,
+            panStartX: 0,
+            panStartY: 0
+        };
+
+        function applyDynamicTransform(container, scale, x = 0, y = 0, animate = true) {
+            zoom.scale = scale;
+            zoom.x = x;
+            zoom.y = y;
+            zoom.isZoomed = scale > 1.05;
+
+            container.style.transition = animate ? 'transform 0.28s cubic-bezier(0.18, 0.98, 0.28, 1)' : 'none';
+            container.classList.toggle('is-zoomed', zoom.isZoomed);
+
+            if (zoom.isZoomed) {
+                container.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+                glassPill.style.opacity = '0';
+            } else {
+                container.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                glassPill.style.opacity = '1';
+                zoom.scale = 1;
+                zoom.x = 0;
+                zoom.y = 0;
+            }
+        }
+
+        function resetZoomImmediate() {
+            if (pages[currentState]) {
+                applyDynamicTransform(pages[currentState].container, 1, 0, 0, false);
+            }
+        }
+
+        // -------------------------------------------------------------
+        // DIRECTIONAL 3D BOOK TURN ENGINE
+        // -------------------------------------------------------------
+        function renderBookTurn(progress, anchorState = currentState) {
+            const pClamped = Math.max(0, Math.min(TOTAL_PHOTOS - 1, progress));
+            const delta = pClamped - anchorState;
+            const isForward = delta >= 0;
+
+            const activeIdx = anchorState;
+            const targetIdx = isForward
+                ? Math.min(TOTAL_PHOTOS - 1, activeIdx + 1)
+                : Math.max(0, activeIdx - 1);
+
+            const frac = Math.abs(delta);
+
+            for (let i = 0; i < TOTAL_PHOTOS; i++) {
+                if (i !== activeIdx && i !== targetIdx) {
+                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.zIndex = '0';
+                }
+            }
+
+            if (frac === 0 || activeIdx === targetIdx) {
+                const item = pages[activeIdx];
+                item.page.style.display = 'flex';
+                item.page.style.zIndex = '20';
+                item.leaf.style.transformOrigin = 'left center';
+                item.leaf.style.transform = 'translate3d(0, 0, 0) rotateY(0deg)';
+                item.leaf.style.opacity = '1';
+                item.shading.style.opacity = '0';
+                if (item.sheen) item.sheen.style.opacity = '0';
+
+                if (photoUrls[activeIdx]) {
+                    ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
+                    ambientA.style.opacity = '0.88';
+                    ambientB.style.opacity = '0';
+                }
+            } else {
+                const topItem = pages[activeIdx];
+                const underItem = pages[targetIdx];
+
+                topItem.page.style.display = 'flex';
+                topItem.page.style.zIndex = '30';
+
+                underItem.page.style.display = 'flex';
+                underItem.page.style.zIndex = '20';
+
+                const zLift = Math.sin(frac * Math.PI) * 52;
+                const leafOpacity = frac > 0.85 ? Math.max(0, 1 - (frac - 0.85) * 6.5) : 1;
+                const sheenIntensity = Math.sin(frac * Math.PI) * 0.75;
+
+                if (isForward) {
+                    topItem.leaf.style.transformOrigin = 'left center';
+                    const angle = -Math.pow(frac, 0.94) * 108;
+                    const curl = Math.sin(frac * Math.PI) * 2.4;
+
+                    topItem.leaf.style.transform = `
+            translate3d(0, 0, ${zLift.toFixed(1)}px)
+            rotateY(${angle.toFixed(2)}deg)
+            rotateZ(${-curl.toFixed(2)}deg)
+          `;
+                } else {
+                    topItem.leaf.style.transformOrigin = 'right center';
+                    const angle = Math.pow(frac, 0.94) * 108;
+                    const curl = Math.sin(frac * Math.PI) * 2.4;
+
+                    topItem.leaf.style.transform = `
+            translate3d(0, 0, ${zLift.toFixed(1)}px)
+            rotateY(${angle.toFixed(2)}deg)
+            rotateZ(${curl.toFixed(2)}deg)
+          `;
+                }
+
+                topItem.leaf.style.opacity = leafOpacity.toFixed(3);
+                topItem.shading.style.opacity = (Math.sin(frac * Math.PI) * 0.45).toFixed(2);
+                if (topItem.sheen) topItem.sheen.style.opacity = sheenIntensity.toFixed(2);
+
+                const underZ = -(1 - frac) * 38;
+                const underScale = 0.96 + frac * 0.04;
+                underItem.leaf.style.transformOrigin = 'center center';
+                underItem.leaf.style.transform = `translate3d(0, 0, ${underZ.toFixed(1)}px) scale(${underScale.toFixed(3)}) rotateY(0deg)`;
+                underItem.leaf.style.opacity = '1';
+                underItem.shading.style.opacity = ((1 - frac) * 0.32).toFixed(2);
+                if (underItem.sheen) underItem.sheen.style.opacity = '0';
+
+                if (photoUrls[activeIdx] && photoUrls[targetIdx]) {
+                    ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
+                    ambientB.style.backgroundImage = `url('${photoUrls[targetIdx]}')`;
+                    ambientA.style.opacity = ((1 - frac) * 0.88).toFixed(3);
+                    ambientB.style.opacity = (frac * 0.88).toFixed(3);
+                }
+            }
+
+            const pillIdx = Math.round(pClamped);
+            if (glassFill) {
+                const pct = (pClamped / (TOTAL_PHOTOS - 1)) * 100;
+                glassFill.style.width = `${pct.toFixed(1)}%`;
+            }
+            if (glassLabel) {
+                const pNum = String(pillIdx + 1).padStart(2, '0');
+                const tNum = String(TOTAL_PHOTOS).padStart(2, '0');
+                glassLabel.textContent = `${pNum} / ${tNum}`;
+            }
+        }
+
+        function snapToState(targetIdx) {
+            resetZoomImmediate();
+            if (animId) cancelAnimationFrame(animId);
+            isTransitioning = true;
+
+            const fromProgress = displayProgress;
+            const toProgress = Math.max(0, Math.min(TOTAL_PHOTOS - 1, targetIdx));
+            const anchor = currentState;
+            const startTime = performance.now();
+            const distance = Math.abs(toProgress - fromProgress);
+            const duration = Math.min(560, Math.max(380, 520 * Math.pow(distance, 0.4)));
+
+            function step(now) {
+                const elapsed = now - startTime;
+                const t = Math.min(1, elapsed / duration);
+                const ease = 1 - Math.pow(1 - t, 3.2);
+
+                displayProgress = fromProgress + (toProgress - fromProgress) * ease;
+                renderBookTurn(displayProgress, anchor);
+
+                if (t < 1) {
+                    animId = requestAnimationFrame(step);
+                } else {
+                    displayProgress = toProgress;
+                    currentState = toProgress;
+                    renderBookTurn(currentState, currentState);
+                    isTransitioning = false;
+                    animId = null;
+                }
+            }
+
+            animId = requestAnimationFrame(step);
+        }
+
+        // -------------------------------------------------------------
+        // GESTURE CONTROLLER (Drives Cover -> Prologue -> Album Pages)
+        // -------------------------------------------------------------
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        let isSwipeGesture = false;
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (journeyPhase === 2 && e.touches.length === 2) {
+                isDragging = false;
+                lastTapTime = 0;
+                zoom.initialDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                zoom.initialScale = zoom.scale;
+                return;
+            }
+
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                dragStartX = e.touches[0].clientX;
+                dragStartY = e.touches[0].clientY;
+                touchStartTime = performance.now();
+                isSwipeGesture = false;
+
+                if (journeyPhase === 2 && zoom.isZoomed) {
+                    zoom.panStartX = e.touches[0].clientX - zoom.x;
+                    zoom.panStartY = e.touches[0].clientY - zoom.y;
+                    return;
+                }
+
+                if (journeyPhase === 2 && isTransitioning) {
+                    if (animId) cancelAnimationFrame(animId);
+                    displayProgress = Math.round(displayProgress);
+                    currentState = displayProgress;
+                    renderBookTurn(currentState, currentState);
+                    isTransitioning = false;
+                    animId = null;
+                }
+
+                isDragging = true;
+                dragFraction = 0;
+                touchHistory = [{ x: dragStartX, y: dragStartY, t: performance.now() }];
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (journeyPhase === 2 && e.touches.length === 2 && zoom.initialDist > 0) {
+                const currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const scaleFactor = currentDist / zoom.initialDist;
+                const targetScale = Math.min(4.5, Math.max(1.0, zoom.initialScale * scaleFactor));
+                applyDynamicTransform(pages[currentState].container, targetScale, zoom.x, zoom.y, false);
+                return;
+            }
+
+            if (e.touches.length === 1) {
+                const distMoved = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
+                if (distMoved > 8) {
+                    isSwipeGesture = true;
+                    lastTapTime = 0;
+                }
+            }
+
+            if (journeyPhase === 2 && zoom.isZoomed && e.touches.length === 1) {
+                const nextX = e.touches[0].clientX - zoom.panStartX;
+                const nextY = e.touches[0].clientY - zoom.panStartY;
+                applyDynamicTransform(pages[currentState].container, zoom.scale, nextX, nextY, false);
+                return;
+            }
+
+            if (!isDragging || (journeyPhase === 2 && zoom.isZoomed)) return;
+
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const dx = touchX - dragStartX;
+            const dy = touchY - dragStartY;
+
+            const now = performance.now();
+            touchHistory.push({ x: touchX, y: touchY, t: now });
+            while (touchHistory.length > 2 && now - touchHistory[0].t > 100) {
+                touchHistory.shift();
+            }
+
+            if (journeyPhase === 2) {
+                // IN ALBUM: 3D Book Turn Preview
+                const isHorizontal = Math.abs(dx) > Math.abs(dy);
+                const delta = isHorizontal ? -dx : -dy;
+                const rawFraction = delta / SWIPE_PIXELS;
+
+                // Allow backward drag on Photo 1 to pull back toward Prologue
+                if (currentState === 0 && rawFraction < 0) {
+                    dragFraction = rawFraction * 0.5;
+                } else if (currentState === TOTAL_PHOTOS - 1 && rawFraction > 0) {
+                    dragFraction = rawFraction * 0.2;
+                } else {
+                    dragFraction = Math.max(-0.95, Math.min(0.95, rawFraction));
+                }
+
+                displayProgress = currentState + dragFraction;
+                renderBookTurn(displayProgress, currentState);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => {
+            zoom.initialDist = 0;
+
+            if (journeyPhase === 2 && zoom.scale < 1.15 && !zoom.isZoomed) {
+                applyDynamicTransform(pages[currentState].container, 1, 0, 0, true);
+            }
+
+            const now = performance.now();
+            const touchDuration = now - touchStartTime;
+
+            // Intentional Double-Tap Zoom (Only when inside the Album)
+            if (journeyPhase === 2 && !isSwipeGesture && touchDuration < 250) {
+                const tapX = touchStartX;
+                const tapY = touchStartY;
+                const distFromLastTap = Math.hypot(tapX - lastTapX, tapY - lastTapY);
+
+                if (now - lastTapTime < 300 && distFromLastTap < 35) {
+                    lastTapTime = 0;
+                    isDragging = false;
+                    const activeContainer = pages[currentState].container;
+
+                    if (zoom.isZoomed) {
+                        applyDynamicTransform(activeContainer, 1, 0, 0, true);
+                    } else {
+                        const rect = activeContainer.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        const focalShiftX = (centerX - tapX) * 1.4;
+                        const focalShiftY = (centerY - tapY) * 1.4;
+
+                        applyDynamicTransform(activeContainer, 2.4, focalShiftX, focalShiftY, true);
+                    }
+                    return;
+                } else {
+                    lastTapTime = now;
+                    lastTapX = tapX;
+                    lastTapY = tapY;
+                }
+            } else {
+                lastTapTime = 0;
+            }
+
+            if (!isDragging || (journeyPhase === 2 && zoom.isZoomed)) return;
+            isDragging = false;
+
+            let velocity = 0;
+            let dy = 0;
+            if (touchHistory.length >= 2) {
+                const oldest = touchHistory[0];
+                const newest = touchHistory[touchHistory.length - 1];
+                const dt = newest.t - oldest.t;
+                dy = oldest.y - newest.y;
+                if (dt > 10) {
+                    velocity = dy / dt;
+                }
+            }
+
+            // STAGE NAVIGATION (Cover -> Prologue -> Album)
+            if (journeyPhase === 0) {
+                // From Landing Page: swipe up to enter Prologue
+                if (dy > 40 || velocity > 0.25) {
+                    setJourneyPhase(1);
+                }
+                return;
+            }
+
+            if (journeyPhase === 1) {
+                // From Prologue: swipe up to enter Album, swipe down to go back to Landing
+                if (dy > 40 || velocity > 0.25) {
+                    setJourneyPhase(2);
+                } else if (dy < -40 || velocity < -0.25) {
+                    setJourneyPhase(0);
+                }
+                return;
+            }
+
+            if (journeyPhase === 2) {
+                // Inside Album:
+                // If swiping back on Photo 0: Return to Prologue
+                if (currentState === 0 && (dragFraction < -0.15 || velocity < -0.25)) {
+                    setJourneyPhase(1);
+                    return;
+                }
+
+                let target = currentState;
+                if (dragFraction > 0.15 || velocity > 0.25) {
+                    target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
+                } else if (dragFraction < -0.15 || velocity < -0.25) {
+                    target = Math.max(0, currentState - 1);
+                } else {
+                    target = currentState;
+                }
+
+                snapToState(target);
+            }
+        });
+
+        // Trackpad / Wheel Support
+        let wheelDebounce = null;
+        window.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (journeyPhase === 2 && zoom.isZoomed) return;
+
+            clearTimeout(wheelDebounce);
+            wheelDebounce = setTimeout(() => { }, 160);
+
+            const delta = e.deltaY;
+            if (delta > 35) {
+                if (journeyPhase < 2) {
+                    setJourneyPhase(journeyPhase + 1);
+                } else if (currentState < TOTAL_PHOTOS - 1) {
+                    snapToState(currentState + 1);
+                }
+            } else if (delta < -35) {
+                if (journeyPhase === 2 && currentState === 0) {
+                    setJourneyPhase(1);
+                } else if (journeyPhase === 2) {
+                    snapToState(currentState - 1);
+                } else if (journeyPhase === 1) {
+                    setJourneyPhase(0);
+                }
+            }
+        }, { passive: false });
+
+        // Initialize at Stage 1 (Cover)
+        setJourneyPhase(0);
+    </script>
+</body>
+
+</html>
