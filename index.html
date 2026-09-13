@@ -96,7 +96,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+            padding: calc(18px + env(safe-area-inset-top, 0px)) 20px calc(18px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 30%, #151419 0%, #08080a 100%);
             transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
@@ -134,15 +134,15 @@
             position: relative;
             flex: 1;
             width: 100%;
-            max-width: 340px;
-            max-height: 52vh;
-            margin: 14px 0;
+            max-width: min(360px, 92vw);
+            max-height: 60vh;
+            margin: 10px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 20px;
+            border-radius: 22px;
             overflow: hidden;
-            box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.14);
+            box-shadow: 0 28px 75px -10px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.16);
         }
 
         .stage-photo-frame img {
@@ -150,7 +150,7 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            border-radius: 20px;
+            border-radius: 22px;
         }
 
         .stage-footer {
@@ -470,7 +470,7 @@
 
             <!-- EDITABLE BIG PHOTO (STAGE 1) -->
             <div class="stage-photo-frame">
-                <img id="stage1Photo" src="./photos/1.jpeg" alt="Featured Photograph" />
+                <img id="stage1Photo" src="./photos/landing.jpeg" alt="Featured Photograph" />
             </div>
 
             <footer class="stage-footer">
@@ -569,8 +569,18 @@
             };
         }
 
-        // Setup Stage 1 & Stage 2 fallback handlers
-        setupImageResolution(stage1Photo, 0, 1);
+        // Multi-extension fallback loader for stage1Photo
+        function setupNamedImageResolution(img, baseName) {
+            const exts = ['.jpeg', '.jpg', '.png', '.webp', '.JPG', '.JPEG', '.PNG'];
+            let attempt = 0;
+            img.onerror = () => {
+                attempt++;
+                if (attempt < exts.length) {
+                    img.src = `./photos/${baseName}${exts[attempt]}`;
+                }
+            };
+        }
+        setupNamedImageResolution(stage1Photo, 'landing');
         setupImageResolution(stage2Photo, 1, 2);
 
         albumData.forEach((photo, idx) => {
