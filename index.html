@@ -7,9 +7,14 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Moments in Time — Spatial Exhibition</title>
 
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <meta name="description" content="A spatial photographic journey — an intimate, tactile digital photo album." />
+    <meta name="theme-color" content="#070709" />
+    <meta property="og:title" content="Moments in Time — Spatial Exhibition" />
+    <meta property="og:description" content="A spatial photographic journey — an intimate, tactile digital photo album." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -175,7 +180,8 @@
             display: inline-flex;
             align-items: center;
             gap: 9px;
-            padding: 9px 20px;
+            padding: 12px 20px;
+            min-height: 44px;
             background: var(--glass-bg);
             backdrop-filter: blur(24px) saturate(180%);
             -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -295,11 +301,11 @@
         .book-page {
             position: absolute;
             inset: 0;
-            display: none;
+            display: flex;
+            visibility: hidden;
             align-items: center;
             justify-content: center;
             transform-style: preserve-3d;
-            will-change: transform;
             pointer-events: none;
         }
 
@@ -312,7 +318,6 @@
             transform-style: preserve-3d;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            will-change: transform;
             pointer-events: auto;
         }
 
@@ -333,7 +338,6 @@
                 inset 0 -1px 1.5px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(255, 255, 255, 0.16);
             transform-origin: center center;
-            will-change: transform;
             transition: none;
         }
 
@@ -448,7 +452,8 @@
             position: absolute;
             top: calc(18px + env(safe-area-inset-top, 0px));
             left: 20px;
-            height: 36px;
+            height: 44px;
+            min-height: 44px;
             padding: 0 14px;
             border-radius: 999px;
             background: var(--glass-bg);
@@ -492,6 +497,13 @@
             stroke-linejoin: round;
         }
 
+        /* Keyboard Focus Styles (BUG-07) */
+        .scroll-down-cue:focus-visible,
+        .apple-return-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.6);
+            outline-offset: 2px;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .stage-landing,
             .stage-second,
@@ -530,10 +542,10 @@
             </div>
 
             <footer class="stage-footer">
-                <div class="scroll-down-cue">
+                <button class="scroll-down-cue" type="button" aria-label="Scroll to next page">
                     <span>Scroll down</span>
                     <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
-                </div>
+                </button>
             </footer>
         </section>
 
@@ -549,10 +561,10 @@
 
             <!-- "SCROLL DOWN" WRITTEN BELOW THE PHOTO -->
             <footer class="stage-footer">
-                <div class="scroll-down-cue">
+                <button class="scroll-down-cue" type="button" aria-label="Scroll to album">
                     <span>Scroll down</span>
                     <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
-                </div>
+                </button>
             </footer>
         </section>
 
@@ -602,6 +614,9 @@
         let isTransitioningPhase = false;
         let phaseAnimId = null;
 
+        // BUG-06: Respect prefers-reduced-motion for JS animations
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         const TOTAL_PHOTOS = albumData.length;
         const pages = [];
         const photoUrls = new Array(TOTAL_PHOTOS);
@@ -623,9 +638,9 @@
             }
         }
 
-        // Multi-extension fallback loader
+        // Multi-extension fallback loader (max 2 attempts to avoid 404 waterfall)
         function setupImageResolution(img, idx, id) {
-            const exts = ['.jpeg', '.jpg', '.png', '.webp', '.JPG', '.JPEG', '.PNG'];
+            const exts = ['.jpeg', '.jpg'];
             let attempt = 0;
             img.onerror = () => {
                 attempt++;
@@ -642,7 +657,7 @@
 
         // Multi-extension fallback loader for stage1Photo and stage2Photo
         function setupNamedImageResolution(img, baseName) {
-            const exts = ['.jpeg', '.jpg', '.png', '.webp', '.JPG', '.JPEG', '.PNG'];
+            const exts = ['.jpeg', '.jpg'];
             let attempt = 0;
             img.onerror = () => {
                 attempt++;
@@ -667,7 +682,7 @@
 
             const img = document.createElement('img');
             img.src = photo.url;
-            img.alt = `Photo ${photo.id}`;
+            img.alt = photo.alt || `Photo ${photo.id}`;
             if (idx <= 1) img.fetchPriority = 'high';
             else img.loading = 'lazy';
 
@@ -763,6 +778,8 @@
                     returnCoverBtn.classList.remove('visible');
                     returnCoverBtn.style.opacity = '0';
                     returnCoverBtn.style.pointerEvents = 'none';
+                    returnCoverBtn.tabIndex = -1;
+                    returnCoverBtn.setAttribute('aria-hidden', 'true');
                 }
             } else {
                 // Between Stage 2 and Stage 3 (1.0 < progress <= 2.0)
@@ -806,6 +823,9 @@
                         returnCoverBtn.classList.add('visible');
                         returnCoverBtn.style.opacity = pillOp.toFixed(3);
                         returnCoverBtn.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
+                        returnCoverBtn.tabIndex = p > 0.8 ? 0 : -1;
+                        if (p > 0.8) returnCoverBtn.removeAttribute('aria-hidden');
+                        else returnCoverBtn.setAttribute('aria-hidden', 'true');
                     }
                 } else {
                     glassPill.classList.remove('visible');
@@ -815,6 +835,8 @@
                         returnCoverBtn.classList.remove('visible');
                         returnCoverBtn.style.opacity = '0';
                         returnCoverBtn.style.pointerEvents = 'none';
+                        returnCoverBtn.tabIndex = -1;
+                        returnCoverBtn.setAttribute('aria-hidden', 'true');
                     }
                 }
 
@@ -830,10 +852,27 @@
 
         // Apple-style quintic stage transition snapper
         function animateStageTransition(targetMacro, duration = 440, onComplete = null) {
+            // BUG-01: Cross-cancel book turn animation to prevent concurrent RAF loops
+            if (animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+                isTransitioning = false;
+            }
             if (phaseAnimId) {
                 cancelAnimationFrame(phaseAnimId);
                 phaseAnimId = null;
             }
+
+            // BUG-06: Instant resolve for reduced motion preference
+            if (prefersReducedMotion) {
+                macroProgress = targetMacro;
+                journeyPhase = Math.round(targetMacro);
+                renderStageTransition(macroProgress);
+                isTransitioningPhase = false;
+                if (onComplete) onComplete();
+                return;
+            }
+
             isTransitioningPhase = true;
             const fromMacro = macroProgress;
             const toMacro = targetMacro;
@@ -957,6 +996,8 @@
                 if (returnCoverBtn) {
                     returnCoverBtn.style.opacity = '0';
                     returnCoverBtn.style.pointerEvents = 'none';
+                    returnCoverBtn.tabIndex = -1;
+                    returnCoverBtn.setAttribute('aria-hidden', 'true');
                 }
             } else {
                 container.style.transform = 'translate3d(0, 0, 0) scale(1)';
@@ -965,6 +1006,8 @@
                 if (returnCoverBtn) {
                     returnCoverBtn.style.opacity = '';
                     returnCoverBtn.style.pointerEvents = '';
+                    returnCoverBtn.tabIndex = 0;
+                    returnCoverBtn.removeAttribute('aria-hidden');
                 }
                 zoom.scale = 1;
                 zoom.x = 0;
@@ -988,7 +1031,7 @@
                 const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
                 const item = pages[0];
                 if (item) {
-                    item.page.style.display = 'flex';
+                    item.page.style.visibility = 'visible';
                     item.page.style.zIndex = '20';
                     item.leaf.style.transformOrigin = 'center center';
                     const ty = elasticFrac * 55;
@@ -1001,7 +1044,7 @@
                 ambientA.style.opacity = (0.88 - elasticFrac * 0.25).toFixed(3);
 
                 for (let i = 1; i < TOTAL_PHOTOS; i++) {
-                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.visibility = 'hidden';
                     pages[i].page.style.zIndex = '0';
                 }
 
@@ -1016,7 +1059,7 @@
                 const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
                 const item = pages[TOTAL_PHOTOS - 1];
                 if (item) {
-                    item.page.style.display = 'flex';
+                    item.page.style.visibility = 'visible';
                     item.page.style.zIndex = '20';
                     item.leaf.style.transformOrigin = 'left center';
                     const angle = -elasticFrac * 16;
@@ -1027,7 +1070,7 @@
                 }
 
                 for (let i = 0; i < TOTAL_PHOTOS - 1; i++) {
-                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.visibility = 'hidden';
                     pages[i].page.style.zIndex = '0';
                 }
 
@@ -1049,14 +1092,14 @@
 
             for (let i = 0; i < TOTAL_PHOTOS; i++) {
                 if (i !== activeIdx && i !== targetIdx) {
-                    pages[i].page.style.display = 'none';
+                    pages[i].page.style.visibility = 'hidden';
                     pages[i].page.style.zIndex = '0';
                 }
             }
 
             if (frac === 0 || activeIdx === targetIdx) {
                 const item = pages[activeIdx];
-                item.page.style.display = 'flex';
+                item.page.style.visibility = 'visible';
                 item.page.style.zIndex = '20';
                 item.leaf.style.transformOrigin = 'left center';
                 item.leaf.style.transform = 'translate3d(0, 0, 0) rotateY(0deg)';
@@ -1072,10 +1115,10 @@
                 const topItem = pages[activeIdx];
                 const underItem = pages[targetIdx];
 
-                topItem.page.style.display = 'flex';
+                topItem.page.style.visibility = 'visible';
                 topItem.page.style.zIndex = '30';
 
-                underItem.page.style.display = 'flex';
+                underItem.page.style.visibility = 'visible';
                 underItem.page.style.zIndex = '20';
 
                 const zLift = Math.sin(frac * Math.PI) * 52;
@@ -1150,6 +1193,23 @@
                 pages[targetIdx - 1].img.loading = 'eager';
             }
 
+            // BUG-03: Dynamic GPU layer promotion (only active + target)
+            const fromIdx = currentState;
+            pages.forEach((p, i) => {
+                const promote = (i === fromIdx || i === targetIdx);
+                p.leaf.style.willChange = promote ? 'transform' : 'auto';
+                p.container.style.willChange = promote ? 'transform' : 'auto';
+            });
+
+            // BUG-06: Instant resolve for reduced motion preference
+            if (prefersReducedMotion) {
+                displayProgress = targetIdx;
+                currentState = targetIdx;
+                renderBookTurn(currentState, currentState);
+                isTransitioning = false;
+                return;
+            }
+
             const fromProgress = displayProgress;
             const toProgress = Math.max(0, Math.min(TOTAL_PHOTOS - 1, targetIdx));
             const anchor = currentState;
@@ -1174,6 +1234,11 @@
                     renderBookTurn(currentState, currentState);
                     isTransitioning = false;
                     animId = null;
+                    // BUG-03: Release GPU layers after transition
+                    pages.forEach(p => {
+                        p.leaf.style.willChange = 'auto';
+                        p.container.style.willChange = 'auto';
+                    });
                 }
             }
 
@@ -1397,7 +1462,7 @@
             }
             isDragging = false;
 
-            // Compute release velocity
+            // Compute release velocity (BUG-04: Invalidate if finger was held still > 100ms)
             let velocity = 0;
             let axisDelta = 0;
             let dy = 0;
@@ -1410,7 +1475,9 @@
                 const dx = oldest.x - newest.x;
 
                 axisDelta = gestureAxis === 'horizontal' ? dx : dy;
-                if (dt > 10) {
+                if (now - newest.t > 100) {
+                    velocity = 0; // Finger held still before release
+                } else if (dt > 10) {
                     velocity = axisDelta / dt;
                 }
             }
@@ -1439,9 +1506,14 @@
 
             // STAGE 3 (Spatial Album) Release
             if (journeyPhase === 2) {
-                // Return to Stage 2 when swiping back past threshold on Photo 0
+                // Return to Stage 2 when swiping back past threshold on Photo 0 (BUG-05: Clean reset)
                 if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.22)) {
-                    animateStageTransition(1.0);
+                    animateStageTransition(1.0, 440, () => {
+                        currentState = 0;
+                        displayProgress = 0;
+                        dragFraction = 0;
+                        renderBookTurn(0, 0);
+                    });
                     return;
                 }
 
@@ -1451,10 +1523,13 @@
                     return;
                 }
 
+                // BUG-09: Require that velocity doesn't actively oppose positional intent
                 let target = currentState;
-                if (dragFraction > 0.16 || velocity > 0.22) {
+                const intentForward = (dragFraction > 0.16 && velocity >= -0.1) || velocity > 0.22;
+                const intentBackward = (dragFraction < -0.16 && velocity <= 0.1) || velocity < -0.22;
+                if (intentForward) {
                     target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
-                } else if (dragFraction < -0.16 || velocity < -0.22) {
+                } else if (intentBackward) {
                     target = Math.max(0, currentState - 1);
                 } else {
                     target = currentState;
@@ -1567,7 +1642,9 @@
                 dy = oldest.y - newest.y; // Positive = pulled UP
                 const dx = oldest.x - newest.x;
                 const axisDelta = pointerGestureAxis === 'horizontal' ? dx : dy;
-                if (dt > 10) {
+                if (performance.now() - newest.t > 100) {
+                    velocity = 0; // Mouse held still before release
+                } else if (dt > 10) {
                     velocity = axisDelta / dt;
                 }
             }
@@ -1594,7 +1671,12 @@
 
             if (journeyPhase === 2) {
                 if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.22)) {
-                    animateStageTransition(1.0);
+                    animateStageTransition(1.0, 440, () => {
+                        currentState = 0;
+                        displayProgress = 0;
+                        dragFraction = 0;
+                        renderBookTurn(0, 0);
+                    });
                     return;
                 }
 
@@ -1604,9 +1686,11 @@
                 }
 
                 let target = currentState;
-                if (dragFraction > 0.16 || velocity > 0.22) {
+                const intentForward = (dragFraction > 0.16 && velocity >= -0.1) || velocity > 0.22;
+                const intentBackward = (dragFraction < -0.16 && velocity <= 0.1) || velocity < -0.22;
+                if (intentForward) {
                     target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
-                } else if (dragFraction < -0.16 || velocity < -0.22) {
+                } else if (intentBackward) {
                     target = Math.max(0, currentState - 1);
                 } else {
                     target = currentState;
@@ -1707,14 +1791,16 @@
         // Initialize at Stage 1 (Landing)
         renderStageTransition(0);
 
-        // Expose QA API for empirical verification
-        window.__ALBUM__ = {
-            setJourneyPhase,
-            animateStageTransition,
-            snapToState,
-            returnToCover,
-            getState: () => ({ journeyPhase, macroProgress, currentState, isTransitioning, isTransitioningPhase })
-        };
+        // Expose QA API for empirical verification (BUG-16: Guarded for production safety)
+        if (typeof window !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.search.includes('qa=true'))) {
+            window.__ALBUM__ = {
+                setJourneyPhase,
+                animateStageTransition,
+                snapToState,
+                returnToCover,
+                getState: () => ({ journeyPhase, macroProgress, currentState, isTransitioning, isTransitioningPhase })
+            };
+        }
     </script>
 </body>
 

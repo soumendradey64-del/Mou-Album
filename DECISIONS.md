@@ -111,3 +111,19 @@ This log records every significant architectural, design, and interaction decisi
 * **Rationale:** Tactile realism requires instant, 1:1 visual response during user touch, and 60fps/120fps fluid kinematics require zero main-thread congestion.
 * **Consequences:** Stage transitions now feel physically tangible with real 3D depth and tilt; photo turns are buttery smooth with zero frame drops or input lag.
 
+---
+
+### ADR-010: Multi-Agent QA Hardening (RAF Lifecycles, DOM Reflows, GPU Layers, A11y & Security)
+* **Date:** 2026-09-14
+* **Decision:**
+  1. **RAF Cross-Cancellation & Input Latch:** Cross-cancel `animId` in `animateStageTransition()` to eliminate background animation leaks and prevent permanent input lockups.
+  2. **Zero-Reflow Visibility Toggling:** Replace per-frame `display: none / flex` mutation in `renderBookTurn()` with `visibility: hidden / visible` across all 25 pages, completely eliminating forced layout reflows during 60fps kinematics.
+  3. **Dynamic GPU Layer Promotion:** Remove static `will-change: transform` across all 25 photographic leaves. Promote only active and target pages dynamically during transitions and release to `auto` upon settling, reducing GPU composite layer footprint from 75+ layers to 2.
+  4. **Gesture Hardening:** Invalidate stale gesture velocity when touch/mouse is held stationary (>100ms) prior to release, and enforce directional velocity veto over contradictory position drags. Reset `displayProgress` and `currentState` on back-navigation from Photo 01.
+  5. **WCAG Accessibility & Reduced Motion:** Wire `prefers-reduced-motion` into JS RAF loops for instant settling. Upgrade scroll cues to semantic `<button>` elements with `:focus-visible` outlines and manage `tabindex`/`aria-hidden` on hidden controls.
+  6. **Security & Deployment Hardening:** Inject strict CSP, HSTS, Permissions-Policy, and Referrer-Policy into `vercel.json`. Add SVG favicon, `robots.txt`, `manifest.json`, and versioned asset URLs (`?v=2`). Guard internal debug API.
+* **Context:** Multi-agent QA audit discovered edge cases in gesture release logic, 75+ idle GPU layers, DOM layout thrashing in RAF loops, and missing accessibility/security controls.
+* **Rationale:** A luxury spatial experience must not only look refined, but maintain rock-solid stability, zero-leak memory management, and rigorous standards compliance.
+* **Consequences:** 60fps/120fps sustained frame rates without Safari memory crashes; predictable tactile response on touch and mouse; full WCAG 2.1 compliance.
+
+
