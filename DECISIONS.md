@@ -97,3 +97,17 @@ This log records every significant architectural, design, and interaction decisi
 * **Rationale:** A world-class photobook must exhibit zero network errors, predictable tactile controls on both mobile and desktop, and uncompromising visual restraint.
 * **Consequences:** Flawless zero-error execution, resilient gesture tracking across input types, and authentic Apple Liquid Glass aesthetics.
 
+---
+
+### ADR-009: Continuous 3D Spatial Stage Continuum & Decoupled RAF Kinematics
+* **Date:** 2026-09-14
+* **Decision:**
+  1. **3D Spatial Continuum:** Unify Stage 1 (Landing), Stage 2 (Second Page), and Stage 3 (Spatial Album) into a continuous 3D coordinate space ($Z$-depth displacement, $X$-rotation tilt, dynamic scale, and depth-crossfaded ambients) with real-time 1:1 tactile drag preview during gesture drag. Remove static 2D `translateY` CSS transitions.
+  2. **RAF Render Pump:** Decouple `touchmove` and `pointermove` event handlers from DOM mutations. Move all style calculations and 3D matrix transforms into a dedicated `requestAnimationFrame` render loop (`scheduleRender()`), syncing rendering strictly with 60Hz / 120Hz V-Sync.
+  3. **Ambient Layer Image Caching:** Cache active image URLs (`currentAmbientSrcA`, `currentAmbientSrcB`) to eliminate per-frame `style.backgroundImage` string allocations and CSS engine recalculations.
+  4. **GPU Shader Tuning:** Reduce `.ambient-layer` Gaussian blur from 52px to 32px with dedicated layer promotion (`translate3d(0, 0, 0)`), reducing mobile GPU fill-rate overhead.
+  5. **CSS Transition Decoupling:** Remove static `transition: transform` from `.photo-container` during active kinematics to eliminate fighting between CSS transitions and JavaScript RAF interpolation.
+* **Context:** User reported animation lag during photo turns in Stage 3, and noted that scrolling down from the Landing page felt abrupt without animation. Root-cause analysis revealed that Stage 1 and 2 had zero drag preview, and Stage 3 was thrashing the DOM and CSS parser on every touch event.
+* **Rationale:** Tactile realism requires instant, 1:1 visual response during user touch, and 60fps/120fps fluid kinematics require zero main-thread congestion.
+* **Consequences:** Stage transitions now feel physically tangible with real 3D depth and tilt; photo turns are buttery smooth with zero frame drops or input lag.
+
