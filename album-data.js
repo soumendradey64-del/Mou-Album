@@ -6,7 +6,7 @@
  */
 
 export const albumData = [
-  { id: 1, url: './photos/1.jpeg?v=2', alt: 'Photograph 1' },
+  { id: 1, url: './photos/1.jpeg?v=3', alt: 'Photograph 1' },
   { id: 2, url: './photos/2.jpeg?v=2', alt: 'Photograph 2' },
   { id: 3, url: './photos/3.jpeg?v=2', alt: 'Photograph 3' },
   { id: 4, url: './photos/4.jpeg?v=2', alt: 'Photograph 4' },

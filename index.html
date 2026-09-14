@@ -591,7 +591,7 @@
     </main>
 
     <script type="module">
-        import { albumData } from './album-data.js?v=25';
+        import { albumData } from './album-data.js?v=26';
 
         const canvas = document.getElementById('albumCanvas');
         const stage = document.getElementById('bookStage');
@@ -842,7 +842,7 @@
 
                 // Ambient crossfade between Second Page and Photo 01
                 const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : './photos/second.jpeg';
-                const p1Src = photoUrls[currentState] || './photos/1.jpeg';
+                const p1Src = photoUrls[currentState] || './photos/1.jpeg?v=3';
                 setAmbientImage(ambientA, s2Src);
                 setAmbientImage(ambientB, p1Src);
                 ambientA.style.opacity = ((1 - p) * 0.88).toFixed(3);
