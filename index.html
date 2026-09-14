@@ -64,6 +64,9 @@
             z-index: 5;
             touch-action: none;
             cursor: grab;
+            perspective: 1200px;
+            perspective-origin: center center;
+            transform-style: preserve-3d;
         }
 
         .viewport-canvas:active {
@@ -99,7 +102,8 @@
             padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 30%, #151419 0%, #08080a 100%);
-            transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
+            transform-origin: center center;
+            transform-style: preserve-3d;
             will-change: transform, opacity;
         }
 
@@ -221,9 +225,10 @@
             padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
             text-align: center;
             background: radial-gradient(circle at 50% 35%, #181520 0%, #060608 100%);
+            transform-origin: center center;
+            transform-style: preserve-3d;
             transform: translateY(100%);
             opacity: 0;
-            transition: transform 0.6s cubic-bezier(0.18, 0.98, 0.28, 1), opacity 0.6s ease;
             will-change: transform, opacity;
             pointer-events: none;
         }
@@ -251,11 +256,12 @@
             inset: -30px;
             background-size: cover;
             background-position: center;
-            filter: blur(52px) brightness(0.36) saturate(1.05);
-            transform: scale(1.15);
+            filter: blur(32px) brightness(0.38) saturate(1.05);
+            transform: translate3d(0, 0, 0) scale(1.12);
             opacity: 0;
             transition: opacity 0.18s linear;
             will-change: opacity;
+            pointer-events: none;
         }
 
         .ambient-layer.visible {
@@ -272,8 +278,10 @@
         .book-stage {
             position: absolute;
             inset: 0;
-            perspective: 1500px;
+            perspective: 1400px;
             perspective-origin: center center;
+            transform-origin: center center;
+            transform-style: preserve-3d;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -281,7 +289,7 @@
             pointer-events: none;
             z-index: 10;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            will-change: transform, opacity;
         }
 
         .book-page {
@@ -326,7 +334,7 @@
                 0 0 0 1px rgba(255, 255, 255, 0.16);
             transform-origin: center center;
             will-change: transform;
-            transition: transform 0.26s cubic-bezier(0.18, 0.98, 0.28, 1);
+            transition: none;
         }
 
         .photo-container img {
@@ -587,13 +595,33 @@
         const stage1Photo = document.getElementById('stage1Photo');
         const stage2Photo = document.getElementById('stage2Photo');
 
-        // Flow State: 0 = Landing (Stage 1), 1 = Second Page (Stage 2), 2 = Spatial Album (Stage 3)
+        // Continuous Macro Stage:
+        // 0.0 = Stage 1 (Landing), 1.0 = Stage 2 (Second Page), 2.0 = Stage 3 (Spatial Album)
+        let macroProgress = 0;
         let journeyPhase = 0;
         let isTransitioningPhase = false;
+        let phaseAnimId = null;
 
         const TOTAL_PHOTOS = albumData.length;
         const pages = [];
         const photoUrls = new Array(TOTAL_PHOTOS);
+
+        let currentAmbientSrcA = null;
+        let currentAmbientSrcB = null;
+
+        function setAmbientImage(elem, src) {
+            if (elem === ambientA) {
+                if (currentAmbientSrcA !== src) {
+                    currentAmbientSrcA = src;
+                    ambientA.style.backgroundImage = src ? `url('${src}')` : 'none';
+                }
+            } else if (elem === ambientB) {
+                if (currentAmbientSrcB !== src) {
+                    currentAmbientSrcB = src;
+                    ambientB.style.backgroundImage = src ? `url('${src}')` : 'none';
+                }
+            }
+        }
 
         // Multi-extension fallback loader
         function setupImageResolution(img, idx, id) {
@@ -606,7 +634,7 @@
                     img.src = nextSrc;
                     photoUrls[idx] = nextSrc;
                     if (idx === 0) {
-                        ambientA.style.backgroundImage = `url('${nextSrc}')`;
+                        setAmbientImage(ambientA, nextSrc);
                     }
                 }
             };
@@ -662,113 +690,212 @@
             pages.push({ page, leaf, container, img, spine, shading, id: photo.id });
         });
 
-        // Initialize ambient background to landing photo
-        ambientA.style.backgroundImage = `url('./photos/landing.jpeg')`;
+        // Initialize ambient background
+        setAmbientImage(ambientA, './photos/landing.jpeg');
+        ambientA.style.opacity = '0.88';
+        ambientB.style.opacity = '0';
 
         // -------------------------------------------------------------
-        // PHASE JOURNEY MANAGER (Landing -> Second Page -> Album)
+        // 3D CONTINUOUS SPATIAL STAGE TRANSITION ENGINE
         // -------------------------------------------------------------
-        function setJourneyPhase(newPhase) {
-            if (newPhase < 0 || newPhase > 2 || isTransitioningPhase) return;
-            isTransitioningPhase = true;
-            journeyPhase = newPhase;
+        function renderStageTransition(progress) {
+            if (progress <= 1.0) {
+                if (progress < 0) {
+                    // Elastic pull on Landing cover
+                    const elastic = Math.tanh(progress * 1.6) * 0.32;
+                    stageLanding.style.display = 'flex';
+                    stageLanding.style.pointerEvents = 'auto';
+                    stageLanding.style.opacity = (1 - Math.abs(elastic) * 0.25).toFixed(3);
+                    stageLanding.style.transform = `translate3d(0, ${(-elastic * 75).toFixed(1)}px, 0) scale(${(1 + elastic * 0.05).toFixed(3)})`;
 
-            if (journeyPhase === 0) {
-                // Stage 1: Landing Page
-                stageLanding.style.transform = 'translateY(0%)';
-                stageLanding.style.opacity = '1';
-                stageLanding.style.pointerEvents = 'auto';
+                    stageSecond.style.display = 'none';
+                    stageSecond.style.opacity = '0';
+                    stageSecond.style.pointerEvents = 'none';
 
-                stageSecond.style.transform = 'translateY(100%)';
-                stageSecond.style.opacity = '0';
-                stageSecond.style.pointerEvents = 'none';
+                    stage.style.display = 'none';
+                    stage.style.opacity = '0';
+                    stage.style.pointerEvents = 'none';
 
-                stage.style.opacity = '0';
-                glassPill.classList.remove('visible');
-                glassPill.style.opacity = '';
-                glassPill.style.pointerEvents = '';
-                if (returnCoverBtn) {
-                    returnCoverBtn.classList.remove('visible');
-                    returnCoverBtn.style.opacity = '';
-                    returnCoverBtn.style.pointerEvents = '';
+                    setAmbientImage(ambientA, './photos/landing.jpeg');
+                    ambientA.style.opacity = '0.88';
+                    ambientB.style.opacity = '0';
+                } else {
+                    const p = progress;
+                    // Stage 1 (Landing) recedes in 3D perspective
+                    stageLanding.style.display = 'flex';
+                    stageLanding.style.pointerEvents = p < 0.5 ? 'auto' : 'none';
+                    const lY = -p * 100;
+                    const lZ = -p * 130;
+                    const lRotX = p * 10;
+                    const lScale = 1 - p * 0.08;
+                    const lOpacity = Math.max(0, 1 - p * 1.15);
+                    stageLanding.style.transform = `translate3d(0, ${lY.toFixed(2)}%, ${lZ.toFixed(1)}px) rotateX(${lRotX.toFixed(2)}deg) scale(${lScale.toFixed(3)})`;
+                    stageLanding.style.opacity = lOpacity.toFixed(3);
+
+                    // Stage 2 (Second Page) emerges from 3D depth below
+                    stageSecond.style.display = 'flex';
+                    stageSecond.style.pointerEvents = p >= 0.5 ? 'auto' : 'none';
+                    const sY = (1 - p) * 100;
+                    const sZ = (1 - p) * -150;
+                    const sRotX = (1 - p) * -10;
+                    const sScale = 0.91 + p * 0.09;
+                    const sOpacity = Math.min(1, Math.max(0, p * 1.25));
+                    stageSecond.style.transform = `translate3d(0, ${sY.toFixed(2)}%, ${sZ.toFixed(1)}px) rotateX(${sRotX.toFixed(2)}deg) scale(${sScale.toFixed(3)})`;
+                    stageSecond.style.opacity = sOpacity.toFixed(3);
+
+                    // Stage 3 (Album) hidden
+                    stage.style.display = 'none';
+                    stage.style.opacity = '0';
+                    stage.style.pointerEvents = 'none';
+
+                    // Ambient crossfade
+                    const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : './photos/second.jpeg';
+                    setAmbientImage(ambientA, './photos/landing.jpeg');
+                    setAmbientImage(ambientB, s2Src);
+                    ambientA.style.opacity = ((1 - p) * 0.88).toFixed(3);
+                    ambientB.style.opacity = (p * 0.88).toFixed(3);
                 }
 
-                // Restore landing ambient image
-                ambientA.style.backgroundImage = `url('./photos/landing.jpeg')`;
-                ambientA.style.opacity = '0.88';
-                ambientB.style.opacity = '0';
-            } else if (journeyPhase === 1) {
-                // Stage 2: Second Page
-                stageLanding.style.transform = 'translateY(-100%)';
+                glassPill.classList.remove('visible');
+                glassPill.style.opacity = '0';
+                glassPill.style.pointerEvents = 'none';
+                if (returnCoverBtn) {
+                    returnCoverBtn.classList.remove('visible');
+                    returnCoverBtn.style.opacity = '0';
+                    returnCoverBtn.style.pointerEvents = 'none';
+                }
+            } else {
+                // Between Stage 2 and Stage 3 (1.0 < progress <= 2.0)
+                const p = Math.min(1, progress - 1.0);
+
+                stageLanding.style.display = 'none';
                 stageLanding.style.opacity = '0';
                 stageLanding.style.pointerEvents = 'none';
 
-                stageSecond.style.transform = 'translateY(0%)';
-                stageSecond.style.opacity = '1';
-                stageSecond.style.pointerEvents = 'auto';
+                // Stage 2 recedes upward in 3D perspective
+                stageSecond.style.display = 'flex';
+                stageSecond.style.pointerEvents = p < 0.5 ? 'auto' : 'none';
+                const sY = -p * 100;
+                const sZ = -p * 130;
+                const sRotX = p * 10;
+                const sScale = 1 - p * 0.08;
+                const sOpacity = Math.max(0, 1 - p * 1.15);
+                stageSecond.style.transform = `translate3d(0, ${sY.toFixed(2)}%, ${sZ.toFixed(1)}px) rotateX(${sRotX.toFixed(2)}deg) scale(${sScale.toFixed(3)})`;
+                stageSecond.style.opacity = sOpacity.toFixed(3);
 
-                stage.style.opacity = '0';
-                glassPill.classList.remove('visible');
-                glassPill.style.opacity = '';
-                glassPill.style.pointerEvents = '';
-                if (returnCoverBtn) {
-                    returnCoverBtn.classList.remove('visible');
-                    returnCoverBtn.style.opacity = '';
-                    returnCoverBtn.style.pointerEvents = '';
-                }
+                // Stage 3 (Album) glides in from 3D depth
+                stage.style.display = 'flex';
+                stage.style.pointerEvents = p >= 0.5 ? 'auto' : 'none';
+                const bY = (1 - p) * 50;
+                const bZ = (1 - p) * -140;
+                const bRotX = (1 - p) * -8;
+                const bScale = 0.92 + p * 0.08;
+                const bOpacity = Math.min(1, Math.max(0, p * 1.25));
+                stage.style.transform = `translate3d(0, ${bY.toFixed(1)}px, ${bZ.toFixed(1)}px) rotateX(${bRotX.toFixed(2)}deg) scale(${bScale.toFixed(3)})`;
+                stage.style.opacity = bOpacity.toFixed(3);
 
-                // Ambient for Stage 2
-                const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : './photos/second.jpeg';
-                ambientA.style.backgroundImage = `url('${s2Src}')`;
-                ambientA.style.opacity = '0.88';
-                ambientB.style.opacity = '0';
-            } else if (journeyPhase === 2) {
-                // Stage 3: Spatial 3D Album
-                stageLanding.style.transform = 'translateY(-100%)';
-                stageLanding.style.opacity = '0';
-                stageLanding.style.pointerEvents = 'none';
-
-                stageSecond.style.transform = 'translateY(-100%)';
-                stageSecond.style.opacity = '0';
-                stageSecond.style.pointerEvents = 'none';
-
-                stage.style.opacity = '1';
-                glassPill.classList.add('visible');
-                if (returnCoverBtn) returnCoverBtn.classList.add('visible');
                 renderBookTurn(currentState, currentState);
-            }
 
-            setTimeout(() => {
-                isTransitioningPhase = false;
-            }, 620);
+                // Curatorial Glass Pill and Cover Return button fade in
+                if (p > 0.35) {
+                    const pillOp = Math.min(1, (p - 0.35) / 0.65);
+                    glassPill.classList.add('visible');
+                    glassPill.style.opacity = pillOp.toFixed(3);
+                    glassPill.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
+                    if (returnCoverBtn) {
+                        returnCoverBtn.classList.add('visible');
+                        returnCoverBtn.style.opacity = pillOp.toFixed(3);
+                        returnCoverBtn.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
+                    }
+                } else {
+                    glassPill.classList.remove('visible');
+                    glassPill.style.opacity = '0';
+                    glassPill.style.pointerEvents = 'none';
+                    if (returnCoverBtn) {
+                        returnCoverBtn.classList.remove('visible');
+                        returnCoverBtn.style.opacity = '0';
+                        returnCoverBtn.style.pointerEvents = 'none';
+                    }
+                }
+
+                // Ambient crossfade between Second Page and Photo 01
+                const s2Src = (stage2Photo && stage2Photo.src) ? stage2Photo.src : './photos/second.jpeg';
+                const p1Src = photoUrls[currentState] || './photos/1.jpeg';
+                setAmbientImage(ambientA, s2Src);
+                setAmbientImage(ambientB, p1Src);
+                ambientA.style.opacity = ((1 - p) * 0.88).toFixed(3);
+                ambientB.style.opacity = (p * 0.88).toFixed(3);
+            }
         }
 
-        // Tap cues to advance directly
+        // Apple-style quintic stage transition snapper
+        function animateStageTransition(targetMacro, duration = 440, onComplete = null) {
+            if (phaseAnimId) {
+                cancelAnimationFrame(phaseAnimId);
+                phaseAnimId = null;
+            }
+            isTransitioningPhase = true;
+            const fromMacro = macroProgress;
+            const toMacro = targetMacro;
+            const startTime = performance.now();
+
+            function stepPhase(now) {
+                const elapsed = now - startTime;
+                const t = Math.min(1, elapsed / duration);
+                // Apple fluid quintic deceleration curve
+                const ease = 1 - Math.pow(1 - t, 3.8);
+                macroProgress = fromMacro + (toMacro - fromMacro) * ease;
+                renderStageTransition(macroProgress);
+
+                if (t < 1) {
+                    phaseAnimId = requestAnimationFrame(stepPhase);
+                } else {
+                    macroProgress = toMacro;
+                    journeyPhase = Math.round(toMacro);
+                    renderStageTransition(macroProgress);
+                    isTransitioningPhase = false;
+                    phaseAnimId = null;
+                    if (onComplete) onComplete();
+                }
+            }
+
+            phaseAnimId = requestAnimationFrame(stepPhase);
+        }
+
+        function setJourneyPhase(newPhase) {
+            if (newPhase < 0 || newPhase > 2) return;
+            if (newPhase === journeyPhase && macroProgress === newPhase) return;
+            animateStageTransition(newPhase);
+        }
+
+        // Tap cues to advance directly with 3D animation
         document.querySelectorAll('.scroll-down-cue').forEach(cue => {
             cue.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (isTransitioningPhase) return;
-                setJourneyPhase(journeyPhase + 1);
+                const target = journeyPhase < 1 ? 1.0 : 2.0;
+                animateStageTransition(target);
             });
         });
 
-        // Instant Return to Cover handler (Option B - Glitch-Free & Race-Safe)
+        // Instant Return to Cover handler
         function returnToCover(e) {
             if (e) e.stopPropagation();
             if (animId) {
                 cancelAnimationFrame(animId);
                 animId = null;
             }
+            if (phaseAnimId) {
+                cancelAnimationFrame(phaseAnimId);
+                phaseAnimId = null;
+            }
             isTransitioning = false;
             resetZoomImmediate();
-            setJourneyPhase(0);
-
-            // Defer reset of album state until Stage 3 is fully obscured
-            setTimeout(() => {
+            animateStageTransition(0, 480, () => {
                 currentState = 0;
                 displayProgress = 0;
                 renderBookTurn(0, 0);
-            }, 450);
+            });
         }
 
         if (returnCoverBtn) {
@@ -852,10 +979,10 @@
         }
 
         // -------------------------------------------------------------
-        // DIRECTIONAL 3D BOOK TURN ENGINE (With Elastic Overscroll)
+        // DIRECTIONAL 3D BOOK TURN ENGINE (60fps Decoupled Kinematics)
         // -------------------------------------------------------------
         function renderBookTurn(progress, anchorState = currentState) {
-            // G-06: Top pull at Photo 0 (elastic rubberbanding preview)
+            // Elastic overscroll at Photo 0
             if (progress < 0) {
                 const overscroll = -progress;
                 const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
@@ -883,7 +1010,7 @@
                 return;
             }
 
-            // G-07: Bottom push at Photo 24 (elastic boundary resistance)
+            // Elastic overscroll at Photo 24
             if (progress > TOTAL_PHOTOS - 1) {
                 const overscroll = progress - (TOTAL_PHOTOS - 1);
                 const elasticFrac = Math.tanh(overscroll * 1.8) * 0.35;
@@ -937,7 +1064,7 @@
                 item.shading.style.opacity = '0';
 
                 if (photoUrls[activeIdx]) {
-                    ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
+                    setAmbientImage(ambientA, photoUrls[activeIdx]);
                     ambientA.style.opacity = '0.88';
                     ambientB.style.opacity = '0';
                 }
@@ -987,8 +1114,8 @@
                 underItem.shading.style.opacity = ((1 - frac) * 0.32).toFixed(2);
 
                 if (photoUrls[activeIdx] && photoUrls[targetIdx]) {
-                    ambientA.style.backgroundImage = `url('${photoUrls[activeIdx]}')`;
-                    ambientB.style.backgroundImage = `url('${photoUrls[targetIdx]}')`;
+                    setAmbientImage(ambientA, photoUrls[activeIdx]);
+                    setAmbientImage(ambientB, photoUrls[targetIdx]);
                     ambientA.style.opacity = ((1 - frac) * 0.88).toFixed(3);
                     ambientB.style.opacity = (frac * 0.88).toFixed(3);
                 }
@@ -1028,13 +1155,13 @@
             const anchor = currentState;
             const startTime = performance.now();
             const distance = Math.abs(toProgress - fromProgress);
-            const duration = Math.min(560, Math.max(380, 520 * Math.pow(Math.max(0.1, distance), 0.4)));
+            const duration = Math.min(480, Math.max(340, 440 * Math.pow(Math.max(0.1, distance), 0.4)));
 
             function step(now) {
                 const elapsed = now - startTime;
                 const t = Math.min(1, elapsed / duration);
-                // Apple-style quintic deceleration curve
-                const ease = 1 - Math.pow(1 - t, 3.6);
+                // Apple-style fluid quintic deceleration curve
+                const ease = 1 - Math.pow(1 - t, 3.8);
 
                 displayProgress = fromProgress + (toProgress - fromProgress) * ease;
                 renderBookTurn(displayProgress, anchor);
@@ -1051,6 +1178,23 @@
             }
 
             animId = requestAnimationFrame(step);
+        }
+
+        // -------------------------------------------------------------
+        // HIGH PERFORMANCE RAF RENDER PUMP (Decoupled Touch/Pointer)
+        // -------------------------------------------------------------
+        let rafPending = false;
+        function scheduleRender() {
+            if (rafPending) return;
+            rafPending = true;
+            requestAnimationFrame(() => {
+                rafPending = false;
+                if (journeyPhase < 2 || isTransitioningPhase) {
+                    renderStageTransition(macroProgress);
+                } else {
+                    renderBookTurn(displayProgress, currentState);
+                }
+            });
         }
 
         // -------------------------------------------------------------
@@ -1108,7 +1252,7 @@
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
-            // Two-finger pinch-to-zoom
+            // Two-finger pinch-to-zoom (Stage 3 only)
             if (journeyPhase === 2 && e.touches.length === 2 && zoom.initialDist > 0) {
                 e.preventDefault();
                 const currentDist = Math.hypot(
@@ -1126,10 +1270,10 @@
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
             const dx = touchX - dragStartX;
-            const dy = touchY - dragStartY;
+            const dy = dragStartY - touchY; // Positive = pulling UP
             const totalDist = Math.hypot(dx, dy);
 
-            // Establish axial lock once threshold exceeded (Bug 2 fix)
+            // Establish axial lock
             if (totalDist > 8) {
                 isSwipeGesture = true;
                 lastTapTime = 0;
@@ -1138,7 +1282,7 @@
                 }
             }
 
-            // Zoomed pan with rubberband bounds (Bug 9 fix)
+            // Zoomed pan in Stage 3
             if (journeyPhase === 2 && zoom.isZoomed) {
                 e.preventDefault();
                 const rawX = touchX - zoom.panStartX;
@@ -1157,7 +1301,6 @@
 
             if (!isDragging) return;
 
-            // Prevent default pull-to-refresh & browser viewport bounce (Bug 10 fix)
             e.preventDefault();
 
             const now = performance.now();
@@ -1166,24 +1309,37 @@
                 touchHistory.shift();
             }
 
+            // STAGE 1 (Landing): 1:1 tactile 3D drag preview
+            if (journeyPhase === 0) {
+                const frac = dy / 300;
+                macroProgress = Math.min(1.0, Math.max(-0.35, frac));
+                scheduleRender();
+                return;
+            }
+
+            // STAGE 2 (Second Page): 1:1 tactile 3D drag preview (up to Album or down to Landing)
+            if (journeyPhase === 1) {
+                const frac = dy / 300;
+                macroProgress = Math.max(0.0, Math.min(2.0, 1.0 + frac));
+                scheduleRender();
+                return;
+            }
+
+            // STAGE 3 (Spatial Album): 3D page turn kinematics
             if (journeyPhase === 2) {
-                // IN ALBUM: 3D Book Turn Preview with locked axis (Bug 1 fix)
-                const primaryDelta = gestureAxis === 'horizontal' ? -dx : -dy;
+                const primaryDelta = gestureAxis === 'horizontal' ? -dx : dy;
                 const rawFraction = primaryDelta / SWIPE_PIXELS;
 
-                // G-06: Pulling back on Photo 0 (elastic tactile resistance)
-                // G-07: Pushing forward on Photo 24 (elastic tactile resistance)
                 if (currentState === 0 && rawFraction < 0) {
                     dragFraction = -Math.tanh(Math.abs(rawFraction) * 0.9) * 0.42;
                 } else if (currentState === TOTAL_PHOTOS - 1 && rawFraction > 0) {
                     dragFraction = Math.tanh(rawFraction * 0.8) * 0.32;
                 } else {
-                    // Hard swipe clamp: single gesture cannot advance more than 1 state
                     dragFraction = Math.max(-0.95, Math.min(0.95, rawFraction));
                 }
 
                 displayProgress = currentState + dragFraction;
-                renderBookTurn(displayProgress, currentState);
+                scheduleRender();
             }
         }, { passive: false });
 
@@ -1202,7 +1358,7 @@
             const now = performance.now();
             const touchDuration = now - touchStartTime;
 
-            // Intentional Double-Tap Zoom (Only when inside the Album)
+            // Intentional Double-Tap Zoom (Stage 3 only)
             if (journeyPhase === 2 && !isSwipeGesture && touchDuration < 250) {
                 const tapX = touchStartX;
                 const tapY = touchStartY;
@@ -1241,7 +1397,7 @@
             }
             isDragging = false;
 
-            // Compute velocity along the active gesture axis (Bug 1 fix)
+            // Compute release velocity
             let velocity = 0;
             let axisDelta = 0;
             let dy = 0;
@@ -1250,8 +1406,8 @@
                 const oldest = touchHistory[0];
                 const newest = touchHistory[touchHistory.length - 1];
                 const dt = newest.t - oldest.t;
-                dy = oldest.y - newest.y; // Positive = swiping UP
-                const dx = oldest.x - newest.x; // Positive = swiping LEFT
+                dy = oldest.y - newest.y; // Positive = swiped UP
+                const dx = oldest.x - newest.x;
 
                 axisDelta = gestureAxis === 'horizontal' ? dx : dy;
                 if (dt > 10) {
@@ -1259,43 +1415,46 @@
                 }
             }
 
-            // STAGE NAVIGATION (Cover -> Prologue -> Album)
+            // STAGE 1 (Landing) Release
             if (journeyPhase === 0) {
-                // From Landing Page: swipe up to enter Prologue
-                if (dy > 40 || velocity > 0.25) {
-                    setJourneyPhase(1);
+                if (dy > 42 || velocity > 0.22) {
+                    animateStageTransition(1.0);
+                } else {
+                    animateStageTransition(0.0);
                 }
                 return;
             }
 
+            // STAGE 2 (Second Page) Release
             if (journeyPhase === 1) {
-                // From Prologue: swipe up to enter Album, swipe down to go back to Landing
-                if (dy > 40 || velocity > 0.25) {
-                    setJourneyPhase(2);
-                } else if (dy < -40 || velocity < -0.25) {
-                    setJourneyPhase(0);
+                if (dy > 42 || velocity > 0.22) {
+                    animateStageTransition(2.0);
+                } else if (dy < -42 || velocity < -0.22) {
+                    animateStageTransition(0.0);
+                } else {
+                    animateStageTransition(1.0);
                 }
                 return;
             }
 
+            // STAGE 3 (Spatial Album) Release
             if (journeyPhase === 2) {
-                // G-06: Swiping back on Photo 0 returns to Prologue
-                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.25)) {
-                    setJourneyPhase(1);
+                // Return to Stage 2 when swiping back past threshold on Photo 0
+                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.22)) {
+                    animateStageTransition(1.0);
                     return;
                 }
 
-                // G-07: Pushing past Photo 24 snaps back to Photo 24
+                // Snap back when pushing past last photo
                 if (currentState === TOTAL_PHOTOS - 1 && dragFraction > 0) {
                     snapToState(TOTAL_PHOTOS - 1);
                     return;
                 }
 
                 let target = currentState;
-                // Strict single-state advance threshold
-                if (dragFraction > 0.16 || velocity > 0.25) {
+                if (dragFraction > 0.16 || velocity > 0.22) {
                     target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
-                } else if (dragFraction < -0.16 || velocity < -0.25) {
+                } else if (dragFraction < -0.16 || velocity < -0.22) {
                     target = Math.max(0, currentState - 1);
                 } else {
                     target = currentState;
@@ -1306,7 +1465,7 @@
         });
 
         // -------------------------------------------------------------
-        // DESKTOP POINTER / MOUSE DRAG PARITY (Bug 11 fix)
+        // DESKTOP POINTER / MOUSE DRAG PARITY
         // -------------------------------------------------------------
         let isPointerDragging = false;
         let pointerStartX = 0;
@@ -1337,7 +1496,7 @@
             if (!isPointerDragging) return;
 
             const dx = e.clientX - pointerStartX;
-            const dy = e.clientY - pointerStartY;
+            const dy = pointerStartY - e.clientY; // Positive = pulling UP
             const totalDist = Math.hypot(dx, dy);
 
             if (totalDist > 6 && !pointerGestureAxis) {
@@ -1358,8 +1517,22 @@
                 pointerHistory.shift();
             }
 
+            if (journeyPhase === 0) {
+                const frac = dy / 300;
+                macroProgress = Math.min(1.0, Math.max(-0.35, frac));
+                scheduleRender();
+                return;
+            }
+
+            if (journeyPhase === 1) {
+                const frac = dy / 300;
+                macroProgress = Math.max(0.0, Math.min(2.0, 1.0 + frac));
+                scheduleRender();
+                return;
+            }
+
             if (journeyPhase === 2) {
-                const primaryDelta = pointerGestureAxis === 'horizontal' ? -dx : -dy;
+                const primaryDelta = pointerGestureAxis === 'horizontal' ? -dx : dy;
                 const rawFraction = primaryDelta / SWIPE_PIXELS;
 
                 if (currentState === 0 && rawFraction < 0) {
@@ -1371,7 +1544,7 @@
                 }
 
                 displayProgress = currentState + dragFraction;
-                renderBookTurn(displayProgress, currentState);
+                scheduleRender();
             }
         });
 
@@ -1391,7 +1564,7 @@
                 const oldest = pointerHistory[0];
                 const newest = pointerHistory[pointerHistory.length - 1];
                 const dt = newest.t - oldest.t;
-                dy = oldest.y - newest.y;
+                dy = oldest.y - newest.y; // Positive = pulled UP
                 const dx = oldest.x - newest.x;
                 const axisDelta = pointerGestureAxis === 'horizontal' ? dx : dy;
                 if (dt > 10) {
@@ -1400,19 +1573,28 @@
             }
 
             if (journeyPhase === 0) {
-                if (dy > 40 || velocity > 0.25) setJourneyPhase(1);
+                if (dy > 42 || velocity > 0.22) {
+                    animateStageTransition(1.0);
+                } else {
+                    animateStageTransition(0.0);
+                }
                 return;
             }
 
             if (journeyPhase === 1) {
-                if (dy > 40 || velocity > 0.25) setJourneyPhase(2);
-                else if (dy < -40 || velocity < -0.25) setJourneyPhase(0);
+                if (dy > 42 || velocity > 0.22) {
+                    animateStageTransition(2.0);
+                } else if (dy < -42 || velocity < -0.22) {
+                    animateStageTransition(0.0);
+                } else {
+                    animateStageTransition(1.0);
+                }
                 return;
             }
 
             if (journeyPhase === 2) {
-                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.25)) {
-                    setJourneyPhase(1);
+                if (currentState === 0 && (dragFraction < -0.16 || velocity < -0.22)) {
+                    animateStageTransition(1.0);
                     return;
                 }
 
@@ -1422,9 +1604,9 @@
                 }
 
                 let target = currentState;
-                if (dragFraction > 0.16 || velocity > 0.25) {
+                if (dragFraction > 0.16 || velocity > 0.22) {
                     target = Math.min(TOTAL_PHOTOS - 1, currentState + 1);
-                } else if (dragFraction < -0.16 || velocity < -0.25) {
+                } else if (dragFraction < -0.16 || velocity < -0.22) {
                     target = Math.max(0, currentState - 1);
                 } else {
                     target = currentState;
@@ -1451,7 +1633,7 @@
             }
         });
 
-        // Trackpad / Wheel Support with Kinetic Latch (Bug 6 fix)
+        // Trackpad / Wheel Support with Kinetic Latch
         let wheelAccumulator = 0;
         let wheelLocked = false;
         let wheelResetTimer = null;
@@ -1474,59 +1656,64 @@
             if (wheelAccumulator > WHEEL_THRESHOLD) {
                 wheelLocked = true;
                 wheelAccumulator = 0;
-                if (journeyPhase < 2) {
-                    setJourneyPhase(journeyPhase + 1);
+                if (macroProgress < 1) {
+                    animateStageTransition(1.0);
+                } else if (macroProgress < 2) {
+                    animateStageTransition(2.0);
                 } else if (currentState < TOTAL_PHOTOS - 1) {
                     snapToState(currentState + 1);
                 }
             } else if (wheelAccumulator < -WHEEL_THRESHOLD) {
                 wheelLocked = true;
                 wheelAccumulator = 0;
-                if (journeyPhase === 2 && currentState === 0) {
-                    setJourneyPhase(1);
-                } else if (journeyPhase === 2) {
+                if (macroProgress >= 2 && currentState === 0) {
+                    animateStageTransition(1.0);
+                } else if (macroProgress >= 2) {
                     snapToState(currentState - 1);
-                } else if (journeyPhase === 1) {
-                    setJourneyPhase(0);
+                } else if (macroProgress >= 1) {
+                    animateStageTransition(0.0);
                 }
             }
         }, { passive: false });
 
-        // Keyboard Support with Transition Lock (Bug 10 & 12 fix)
+        // Keyboard Support with Transition Lock
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Home') {
                 e.preventDefault();
-                if (journeyPhase > 0) returnToCover();
+                if (macroProgress > 0) returnToCover();
             } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 if (isTransitioning || isTransitioningPhase) return;
-                if (journeyPhase < 2) {
-                    setJourneyPhase(journeyPhase + 1);
+                if (macroProgress < 1) {
+                    animateStageTransition(1.0);
+                } else if (macroProgress < 2) {
+                    animateStageTransition(2.0);
                 } else if (currentState < TOTAL_PHOTOS - 1) {
                     snapToState(currentState + 1);
                 }
             } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
                 e.preventDefault();
                 if (isTransitioning || isTransitioningPhase) return;
-                if (journeyPhase === 2 && currentState === 0) {
-                    setJourneyPhase(1);
-                } else if (journeyPhase === 2) {
+                if (macroProgress >= 2 && currentState === 0) {
+                    animateStageTransition(1.0);
+                } else if (macroProgress >= 2) {
                     snapToState(currentState - 1);
-                } else if (journeyPhase === 1) {
-                    setJourneyPhase(0);
+                } else if (macroProgress >= 1) {
+                    animateStageTransition(0.0);
                 }
             }
         });
 
-        // Initialize at Stage 1 (Cover)
-        setJourneyPhase(0);
+        // Initialize at Stage 1 (Landing)
+        renderStageTransition(0);
 
         // Expose QA API for empirical verification
         window.__ALBUM__ = {
             setJourneyPhase,
+            animateStageTransition,
             snapToState,
             returnToCover,
-            getState: () => ({ journeyPhase, currentState, isTransitioning, isTransitioningPhase })
+            getState: () => ({ journeyPhase, macroProgress, currentState, isTransitioning, isTransitioningPhase })
         };
     </script>
 </body>
